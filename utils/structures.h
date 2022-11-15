@@ -68,6 +68,7 @@ typedef struct {
     int coins;
     char name[GAME_MAX_NAME];
     enum difficulty diff;
+
 } game;
 
 /*
