@@ -1,10 +1,10 @@
-//
-// Created by marco on 15/11/2022.
-//
-
 #ifndef FROGGER_LIBRARIES_H
 #define FROGGER_LIBRARIES_H
 
 #include "../chelp/chelp.h"
+
+#include <dirent.h>
+
+#include "../utils/shortcuts.h"
 
 #endif //FROGGER_LIBRARIES_H
