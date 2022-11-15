@@ -14,4 +14,11 @@ if (ptr == NULL)                                    \
 
 #define ADDR(x) printf("ADDR = %p\n", x);
 
+#define MULFREE(element, size)                      \
+for (int CC = size - 1; CC > -1; CC--) {            \
+    free(element[CC]);                              \
+}                                                   \
+free(element);
+
+// ma guarda, l'ho semplificata a dire il vero
 #endif //FROGGER_SHORTCUTS_H
