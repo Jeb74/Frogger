@@ -101,8 +101,6 @@ typedef struct commands* Commands;
  */
 void input(char **string, int DIM, _Bool FixedDim, const char conditions[], const char message[]);
 
-_Bool sString (char **getIns, const char *cmds);
-
 void freeIt(char **var);
 
 /* ###################################################################################
