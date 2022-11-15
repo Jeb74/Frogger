@@ -20,5 +20,4 @@ for (int CC = size - 1; CC > -1; CC--) {            \
 }                                                   \
 free(element);
 
-// ma guarda, l'ho semplificata a dire il vero
 #endif //FROGGER_SHORTCUTS_H
