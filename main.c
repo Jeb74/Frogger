@@ -1,3 +1,5 @@
-//
-// Created by marco on 15/11/2022.
-//
+#include "Global_Elements/Structures.h"
+
+int main(int argc, char **argv) {
+    return 0;
+}
