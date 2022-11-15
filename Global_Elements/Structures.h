@@ -86,7 +86,35 @@ enum shop {
     GAME_MODE_SWITCH = 100,
     POISON_COVERED_STATUS = 25,
     ROAD_HAZARD_STATUS = 25,
-    SURF_ABILITY = 25
+    SURF_ABILITY = 25,
+    // NEW
+    POISONED_PROJECTILE_ABILITY = 25,
+    FAST_PROJECTILE_ABILITY = 25,
+    EXPLOSIVE_PROJECTILE_ABILITY = 50,
+    NUCLEAR_PROJECTILE_ABILITY = 100
+};
+
+struct Projectile {
+    enum entities entity;
+    enum ability {
+        POISONED_PROJECTILE,
+        FAST_PROJECTILE,
+        EXPLOSIVE_PROJECTILE,
+        NUCLEAR_PROJECTILE
+    } *abilities;
+    unsigned abilities_num;
+};
+
+struct Frog {
+    enum frog_statuses *statuses;
+    unsigned statuses_num;
+    int hp;
+};
+
+struct Log {
+    unsigned length;
+    unsigned *spaces;
+    enum entities *onLog;
 };
 
 #endif //FROGGER_STRUCTURES_H
