@@ -1,6 +1,13 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.10.2)
 project(Frogger C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(Frogger main.c)
+# utile per usare valgrind su linux
+add_compile_options(-g -Og)
+
+add_executable(Frogger
+        main.c)
+
+# utile per aggiungere math.h#pow() anche su gcc linux
+target_link_libraries(Frogger PRIVATE m)

@@ -49,7 +49,7 @@ enum frog_statuses {
  * di monete e punti, ma per poter essere giocata necessità i powerups e tempismo.
  * La modalità impossible possiamo definirla (come piace ad Antonio) la modalità ONESHOT.
  */
-enum GameModes {
+enum difficulty {
     EASY,
     NORMAL,
     HARD,
@@ -67,8 +67,8 @@ typedef struct {
     int points;
     int coins;
     char name[GAME_MAX_NAME];
-    enum GameModes difficulty;
-} Game;
+    enum difficulty diff;
+} game;
 
 /*
  * Questi sono oggetti comprabili con i soldi guadagnati dal superamento dei livelli.
@@ -94,7 +94,7 @@ enum shop {
     NUCLEAR_PROJECTILE_ABILITY = 100
 };
 
-struct Projectile {
+struct projectile {
     enum entities entity;
     enum ability {
         POISONED_PROJECTILE,
@@ -105,13 +105,13 @@ struct Projectile {
     unsigned abilities_num;
 };
 
-struct Frog {
+struct frog {
     enum frog_statuses *statuses;
     unsigned statuses_num;
     int hp;
 };
 
-struct Log {
+struct log {
     unsigned length;
     unsigned *spaces;
     enum entities *onLog;
