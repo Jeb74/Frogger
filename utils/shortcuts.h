@@ -67,6 +67,15 @@ CRASH_IF_NULL(arr)
 DMALLOC(arr, type, size)                                                \
 for (int kk = 0; kk < size; kk++) arr[kk] = default_value;
 
+#define MULTILEVEL_INIT_DEFAULT(type, arr, size1, size2, default_value) \
+DMALLOC(arr, type*, size1)                                              \
+for (int kk = 0; kk < size1; kk++) {                                    \
+    ALLOC(arr[kk], type, size2, MALLOC)                                 \
+    for (int jj = 0; jj < size2; jj++) {                                \
+        arr[kk][jj] = default_value;                                    \
+    }                                                                   \
+}
+
 #endif // SPECIFIC_ALLOCATION
 
 #define ADDR(x) printf("ADDR = %p\n", &x);
@@ -87,4 +96,11 @@ type temp = *x;                                                         \
 
 #define NULL_INIT(var, type) type* var = NULL;
 
+#define PRINT_MATRIX(matrix, size1, size2, format) \
+for (int ii = 0; ii < size1; ii++) { \
+    for (int rr = 0; rr < size2; rr++) { \
+        printf(format, (matrix)[ii][rr]); \
+    } \
+    printf("\n"); \
+}
 #endif //FROGGER_SHORTCUTS_H
