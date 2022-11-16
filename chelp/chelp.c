@@ -263,16 +263,16 @@ static bool *regexCompiler(cl **list, const char conditions[], bool condition_ty
 
 static void evaluateSyntax(const char conditions[]) {
     for (int i = 0, parenthesis = 0, verticalSlash = 0, ignoreSymbol = 0; i < strlen(conditions); i++) {
-        if (parenthesis == 0 && conditions[i] != '!' && conditions[i] != '(') exit(33);
+        if (parenthesis == 0 && conditions[i] != '!' && conditions[i] != '(') perror("\nIllegal argument!\n"), exit(33);
         else if (parenthesis == 0 && conditions[i] == '(') {
             parenthesis++;
             i++;
         }
-        if (parenthesis == 1 && conditions[i] == '(' && conditions[i-1] != '^' && i != '0') exit(-89);
+        if (parenthesis == 1 && conditions[i] == '(' && conditions[i-1] != '^' && i != '0') perror("\nMore parenthesis than expected!\n"), exit(-89);
         if (parenthesis == 1 && conditions[i] == ')') {
             if (conditions[i-1] == '^'
                 && (conditions[i+1] == '!' || conditions[i+1] == '(' || i+1 == strlen(conditions))
-                && ignoreSymbol) exit(89);
+                && ignoreSymbol) perror("\nLess parenthesis than expected!\n"), exit(89);
             else  parenthesis--;
         }
         if (parenthesis) {
@@ -282,13 +282,13 @@ static void evaluateSyntax(const char conditions[]) {
                     if (conditions[j] == ')' && (conditions[j-1] != '^' || !ignoreSymbol)) break; // break
                     if (conditions[j] == '^') {
                         ignoreSymbol++;
-                        if (!checkIfSpecial(conditions[j+1]) && !checkIfNumber(conditions[j+1])) exit(33);
+                        if (!checkIfSpecial(conditions[j+1]) && !checkIfNumber(conditions[j+1])) perror("\nIllegal argument!\n"), exit(33);
                         else {
                             j++;
                             ignoreSymbol--;
                         }
                     }
-                    else if (checkIfSpecial(conditions[j]) || checkIfNumber(conditions[j])) exit(33);
+                    else if (checkIfSpecial(conditions[j]) || checkIfNumber(conditions[j])) perror("\nIllegal argument!\n"), exit(33);
                     i = j;
                 }
             }
@@ -305,13 +305,13 @@ static void evaluateSyntax(const char conditions[]) {
                                 unlimited = true;
                                 i = j+1;
                             }
-                            else exit(33);
+                            else perror("\nIllegal argument!\n"), exit(33);
                         }
-                        else if (!(checkIfNumber(conditions[j]))) exit(33);
+                        else if (!(checkIfNumber(conditions[j]))) perror("\nIllegal argument!\n"), exit(33);
                     }
                     if (onlyNumbers) {
                         if (!(checkIfNumber(conditions[j]))) {
-                            exit(33);
+                            perror("\nIllegal argument!\n"), exit(33);
                         }
                         else i = j;
                     }
@@ -325,11 +325,11 @@ static void evaluateSyntax(const char conditions[]) {
                             ignoreSymbol--;
                             j++;
                         }
-                        else exit(33);
+                        else perror("\nIllegal argument!\n"), exit(33);
                         if ((conditions[j+1] == '|' && conditions[j-2] == '(') || (conditions[j+1] == ')' && conditions[j-2] == '|')) j++;
-                        else exit(33);
+                        else perror("\nIllegal argument!\n"), exit(33);
                     }
-                    else if (checkIfSpecial(conditions[j]) || checkIfNumber(conditions[j])) exit(33);
+                    else if (checkIfSpecial(conditions[j]) || checkIfNumber(conditions[j])) perror("\nIllegal argument!\n"), exit(33);
                     else {
                         if ((conditions[j+1] == '|' && conditions[j-1] == '(') || (conditions[j+1] == ')' && conditions[j-1] == '|')) j++;
                     }
@@ -693,4 +693,19 @@ char **strcut(char *str, char _char) {
         result[i+2] = NULL;
     }
     return result;
+}
+
+char *resizeStr(char *str, unsigned int size, bool RorL) {
+    if (!str) return NULL;
+    unsigned int len = strlen(str);
+    if (size > len) return str;
+    unsigned int diff = len - size;
+    if (RorL == RIGHT) {
+        for (unsigned int i = diff; i <= len; i++) {
+            str[i-diff] = str[i];
+        }
+    }
+    str = (char*) realloc(str, sizeof(char)*size+1);
+    str[size] = '\0';
+    return str;
 }

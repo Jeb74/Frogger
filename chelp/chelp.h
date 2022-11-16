@@ -136,6 +136,10 @@ int **checkMatches(match **matches);
 char **strcut(char *str, char _char);
 _Bool sizedCmpNC(const char *str, const char *str_, int init, int final);
 
+#define RIGHT true
+#define LEFT false
+char *resizeStr(char *str, unsigned int size, bool RorL);
+
 /* ###################################################################################
  *                                 STRINGS HANDLERS </>
  * ###################################################################################
