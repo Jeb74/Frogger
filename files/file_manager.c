@@ -1,7 +1,6 @@
 #include "file_manager.h"
 
 static char **files = NULL;
-
 static int getFileId() {
 }
 
@@ -11,6 +10,31 @@ static char *getFileById(int id) {
 void initializeFileList() {
     if (!files) {
 
+        int counter = 0;
+
+        struct dirent *d;
+
+        char *res = NULL;
+
+        DIR *dir = opendir(SAVE_PATH); CRASH_IF_NULL(dir)
+        CALLOC_M(fileNames, char *, 1)
+
+        /* Prende ogni file dalla directory di salvataggio. */
+        while ((d = readdir(dir)) != NULL)
+        {
+            /* Ignora ogni file che inizia per "." e "..", ovvero current-folder e previous-folder. */
+            if (d->d_name[0] != IGNORE_DIR)
+            {
+                CALLOC(fileNames[counter], char, strlen(d->d_name) + 1)
+
+                strcpy(fileNames[counter], d->d_name);
+                printf("\t%d |> %s\n", counter, fileNames[counter]);
+
+                REALLOC(char *, fileNames, ++counter + 1)
+            }
+        }
+
+        closedir(dir);
     }
 }
 

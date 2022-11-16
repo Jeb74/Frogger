@@ -1,7 +1,3 @@
-//
-// Created by marco on 15/11/2022.
-//
-
 #ifndef FROGGER_GLOBALMACROS_H
 #define FROGGER_GLOBALMACROS_H
 

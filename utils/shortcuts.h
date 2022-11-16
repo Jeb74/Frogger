@@ -15,23 +15,59 @@ if (ptr == NULL)                                    \
 
 #define CHECK_IF_CHAR(c) strcmp(typename(c), "char") == 0
 
-#define MALLOC(name, type, size)                            \
+#define TEST(name, type, size, declare)                     \
+name = (type *) malloc(sizeof(type) * (size));              \
+CRASH_IF_NULL(name)                                         \
+if (CHECK_IF_CHAR(name[0]))                                 \
+{                                                           \
+    REALLOC(type, name, size + 1)                           \
+    name[size] = '\0';                                      \
+}
+
+
+#define MALLOC_DEC(name, type, size)                            \
 type *name = (type *) malloc(sizeof(type) * (size));        \
 CRASH_IF_NULL(name)                                         \
 if (CHECK_IF_CHAR(name[0]))                                 \
 {                                                           \
-    REALLOC(char, name, size + 1)                           \
+    REALLOC(type, name, size + 1)                           \
     name[size] = '\0';                                      \
 }
 
-#define CALLOC(name, type, size)                            \
+#define MALLOC(name, type, size)                            \
+name = (type *) malloc(sizeof(type) * (size));              \
+CRASH_IF_NULL(name)                                         \
+if (CHECK_IF_CHAR(name[0]))                                 \
+{                                                           \
+    REALLOC(type, name, size + 1)                           \
+    name[size] = '\0';                                      \
+}
+
+#define MALLOC_M(name, type, size)                          \
+type *name = (type *) malloc(sizeof(type) * (size));        \
+CRASH_IF_NULL(name)
+
+#define CALLOC_DEC(name, type, size)                        \
 type *name = (type *) calloc((size), sizeof(type));         \
 CRASH_IF_NULL(name)                                         \
 if (CHECK_IF_CHAR(name[0]))                                 \
 {                                                           \
-    REALLOC(char, name, size + 1)                           \
+    REALLOC(type, name, size + 1)                           \
     name[size] = '\0';                                      \
 }
+
+#define CALLOC(name, type, size)                            \
+name = (type *) calloc((size), sizeof(type));               \
+CRASH_IF_NULL(name)                                         \
+if (CHECK_IF_CHAR(name[0]))                                 \
+{                                                           \
+    REALLOC(type, name, size + 1)                           \
+    name[size] = '\0';                                      \
+}
+
+#define CALLOC_M(name, type, size)                          \
+type *name = (type *) calloc((size), sizeof(type));         \
+CRASH_IF_NULL(name)
 
 #define REALLOC(type, arr, size)                    \
 arr = (type *) realloc(arr, sizeof(type) * (size)); \
