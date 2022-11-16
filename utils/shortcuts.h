@@ -53,9 +53,10 @@ if (CHECK_IF_CHAR(name[0]) && sizeof(char) - sizeof(name[0]) == 0)      \
     name[size] = '\0';                                                  \
 }
 
-#define AREALLOC(type, arr, size)                                     \
+#define AREALLOC(type, arr, size)                                       \
 arr = (type *) realloc(arr, sizeof(type) * (size));                     \
 CRASH_IF_NULL(arr)
+
 
 #define INIT_DEFAULT(type, arr, size, default_value)                    \
 DMALLOC(arr, type, size)                                                \
