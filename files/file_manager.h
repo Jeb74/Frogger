@@ -9,11 +9,14 @@
  * Le varie path utilizzate per la gestione dei files.
  */
 #define SAVE_PATH "../saves/"
-#define SAVE_PATH_LEN strlen(SAVE_PATH)
+#define SAVE_PATH_LEN 9
+
+#define SAVE_PATH_EXT ".bin"
+#define SAVE_PATH_EXT_LEN 4
 
 // Le directory da ignorare.
 #define IGNORE_DIR '.'
 
 void save_game(int id, game game);
-
+void initializeFileList();
 #endif //FROGGER_FILE_MANAGER_H

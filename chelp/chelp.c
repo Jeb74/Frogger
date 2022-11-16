@@ -667,7 +667,7 @@ void bubbleSortInt(int *array, int dimension) {
     }
 }
 
-char **strcut(char *str, char _char) {
+char **strcut(char *str, const char _char, unsigned *count) {
     int countChars = 0;
     int *cPos = NULL;
     for (int i = 0; i < strlen(str); i++) {
@@ -692,10 +692,11 @@ char **strcut(char *str, char _char) {
         }
         result[i+2] = NULL;
     }
+    *count = countChars+1;
     return result;
 }
 
-char *resizeStr(char *str, unsigned int size, bool RorL) {
+char *resizeStr(char *str, const unsigned int size, const bool RorL) {
     if (!str) return NULL;
     unsigned int len = strlen(str);
     if (size > len) return str;

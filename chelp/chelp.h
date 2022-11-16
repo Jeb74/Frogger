@@ -133,7 +133,7 @@ _Bool strCompNCS(const char string[], const char string_[]);
 char *charToString(char _char);
 match *contains(char *_chars, char *_str, _Bool caseSensitive);
 int **checkMatches(match **matches);
-char **strcut(char *str, char _char);
+char **strcut(char *str, char _char, unsigned *count);
 _Bool sizedCmpNC(const char *str, const char *str_, int init, int final);
 
 #define RIGHT true
