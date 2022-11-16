@@ -7,13 +7,15 @@ default: "other"                    \
 )
 
 #define CRASH_IF_NULL(ptr)                          \
-if (ptr == NULL)                                    \
+if (!ptr)                                           \
 {                                                   \
-    printf("\nImpossibile allocare memoria!\n");    \
+    perror("\nImpossibile allocare memoria!\n");    \
     exit(-1);                                       \
 }
 
-#define CHECK_IF_CHAR(c) strcmp(typename(c), "char") == 0
+#define CHECK_IF_CHAR(c) !strcmp(typename(c), "char")
+
+#define IS_NOT_PTR(type, element) (sizeof(type) - sizeof(element)) == 0
 
 #ifndef GENERIC_ALLOCATION
 #define GENERIC_ALLOCATION
@@ -27,7 +29,7 @@ name = (type*) _Generic((atype),                            \
 int: malloc((sizeof(type)) * (size)),                       \
 char: calloc((size), (sizeof(type))),                       \
 bool: realloc(name, sizeof(type) * size)                    \
-)
+);
 
 #endif // GENERIC_ALLOCATION
 
@@ -36,25 +38,25 @@ bool: realloc(name, sizeof(type) * size)                    \
 
 // Malloc con dichiarazione
 #define DMALLOC(name, type, size)                                       \
-type *name = (type *) malloc(sizeof(type) * (size));                    \
+type *name = (type*) malloc(sizeof(type) * (size));                     \
 CRASH_IF_NULL(name)                                                     \
-if (CHECK_IF_CHAR(name[0]) && sizeof(char) - sizeof(name[0]) == 0)      \
+if (CHECK_IF_CHAR(name[0]) && IS_NOT_PTR(char, name[0]))                \
 {                                                                       \
     AREALLOC(type, name, size + 1)                                      \
     name[size] = '\0';                                                  \
 }
 
 #define DCALLOC(name, type, size)                                       \
-type *name = (type *) calloc((size), sizeof(type));                     \
+type *name = (type*) calloc((size), sizeof(type));                      \
 CRASH_IF_NULL(name)                                                     \
-if (CHECK_IF_CHAR(name[0]) && sizeof(char) - sizeof(name[0]) == 0)      \
+if (CHECK_IF_CHAR(name[0]) && IS_NOT_PTR(char, name[0]))                \
 {                                                                       \
-    AREALLOC(char, name, size + 1)                                      \
+    AREALLOC(type, name, size + 1)                                      \
     name[size] = '\0';                                                  \
 }
 
 #define AREALLOC(type, arr, size)                                       \
-arr = (type *) realloc(arr, sizeof(type) * (size));                     \
+arr = (type*) realloc(arr, sizeof(type) * (size));                      \
 CRASH_IF_NULL(arr)
 
 
@@ -79,5 +81,7 @@ type temp = *x;                                                         \
 
 // Converte una stringa in un numero intero.
 #define TO_INT(var) strtol(var, NULL, 10)
+
+#define NULL_INIT(var, type) type* var = NULL;
 
 #endif //FROGGER_SHORTCUTS_H

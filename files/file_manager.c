@@ -17,7 +17,7 @@ void initializeFileList() {
         char *res = NULL;
 
         DIR *dir = opendir(SAVE_PATH); CRASH_IF_NULL(dir)
-        CALLOC_M(fileNames, char *, 1)
+        DCALLOC(fileNames, char *, 1)
 
         /* Prende ogni file dalla directory di salvataggio. */
         while ((d = readdir(dir)) != NULL)
@@ -25,16 +25,16 @@ void initializeFileList() {
             /* Ignora ogni file che inizia per "." e "..", ovvero current-folder e previous-folder. */
             if (d->d_name[0] != IGNORE_DIR)
             {
-                CALLOC(fileNames[counter], char, strlen(d->d_name) + 1)
+                ALLOC(fileNames[counter], char, strlen(d->d_name) + 1, CALLOC)
 
                 strcpy(fileNames[counter], d->d_name);
                 printf("\t%d |> %s\n", counter, fileNames[counter]);
 
-                REALLOC(char *, fileNames, ++counter + 1)
+                AREALLOC(char *, fileNames, ++counter + 1)
             }
         }
-
         closedir(dir);
+        files = fileNames;
     }
 }
 
