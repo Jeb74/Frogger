@@ -5,6 +5,7 @@
 #include "../utils/general.h"
 #endif
 
+
 /*
  * Dimensioni dello schermo.
  */
