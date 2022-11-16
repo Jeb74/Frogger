@@ -1,16 +1,16 @@
 #ifndef FROGGER_SHORTCUTS_H
 #define FROGGER_SHORTCUTS_H
 
-#define typename(x) _Generic((x),   \
-char: "char",                       \
-default: "other"                    \
+#define typename(x) _Generic((x),                                       \
+char: "char",                                                           \
+default: "other"                                                        \
 )
 
-#define CRASH_IF_NULL(ptr)                          \
-if (!ptr)                                           \
-{                                                   \
-    perror("\nImpossibile allocare memoria!\n");    \
-    exit(-1);                                       \
+#define CRASH_IF_NULL(ptr)                                              \
+if (!ptr)                                                               \
+{                                                                       \
+    perror("\nImpossibile allocare memoria!\n");                        \
+    exit(-1);                                                           \
 }
 
 #define CHECK_IF_CHAR(c) !strcmp(typename(c), "char")
@@ -24,11 +24,11 @@ if (!ptr)                                           \
 #define MALLOC (int)0
 #define REALLOC (bool)0
 
-#define ALLOC(name, type, size, atype)                      \
-name = (type*) _Generic((atype),                            \
-int: malloc((sizeof(type)) * (size)),                       \
-char: calloc((size), (sizeof(type))),                       \
-bool: realloc(name, sizeof(type) * size)                    \
+#define ALLOC(name, type, size, atype)                                  \
+name = (type*) _Generic((atype),                                        \
+int: malloc((sizeof(type)) * (size)),                                   \
+char: calloc((size), (sizeof(type))),                                   \
+bool: realloc(name, sizeof(type) * size)                                \
 );
 
 #endif // GENERIC_ALLOCATION
@@ -71,7 +71,7 @@ for (int kk = 0; kk < size; kk++) arr[kk] = default_value;
 
 #define ADDR(x) printf("ADDR = %p\n", &x);
 
-#define MULFREE(element, size)                                          \
+#define DOUBLEFREE(element, size)                                       \
 for (int CC = size - 1; CC > -1; CC--) {                                \
     free(element[CC]);                                                  \
 }                                                                       \

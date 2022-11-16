@@ -1,16 +1,21 @@
 #include "file_manager.h"
 
 static char **files = NULL;
+static unsigned short filesNumber = 0;
 static int getFileId() {
+    // Da sincronizzare con la parte grafica
 }
 
 static char *getFileById(int id) {
+    DCALLOC(fname, char, SAVE_PATH_LEN + strlen(files[id]) + SAVE_PATH_EXT_LEN + 1);
+    strcpy(fname, SAVE_PATH);
+    strcat(fname, files[id]);
+    strcat(fname, SAVE_PATH_EXT);
+    return fname;
 }
 
 void initializeFileList() {
     if (!files) {
-
-        int counter = 0;
 
         struct dirent *d;
 
@@ -25,12 +30,13 @@ void initializeFileList() {
             /* Ignora ogni file che inizia per "." e "..", ovvero current-folder e previous-folder. */
             if (d->d_name[0] != IGNORE_DIR)
             {
-                ALLOC(fileNames[counter], char, strlen(d->d_name) + 1, CALLOC)
+                unsigned size;
+                char **name = strcut(d->d_name, '.', &size);
+                ALLOC(fileNames[filesNumber], char, strlen(name[0]) + 1, CALLOC)
+                strcpy(fileNames[filesNumber], name[0]);
+                DOUBLEFREE(name, size)
 
-                strcpy(fileNames[counter], d->d_name);
-                printf("\t%d |> %s\n", counter, fileNames[counter]);
-
-                AREALLOC(char *, fileNames, ++counter + 1)
+                AREALLOC(char *, fileNames, ++filesNumber + 1)
             }
         }
         closedir(dir);
@@ -43,9 +49,9 @@ void save_game(int id, game game) {
     fwrite(&game, sizeof(game), 1, file);
 }
 
-int open_saving(game *game) {
+int open_saving(game *_game) {
     int id = getFileId();
     FILE *file = fopen(getFileById(id), "rb");
-    fread(game, sizeof(game), 1, file);
+    fread(_game, sizeof(game), 1, file);
     return id;
 }
