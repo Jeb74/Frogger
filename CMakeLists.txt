@@ -15,9 +15,7 @@ add_executable(Frogger
         chelp/chelp.c
         chelp/chelp.h
         utils/general.h
-        files/file_manager.c
-        files/file_manager.h
-        )
+)
 
 # utile per aggiungere math.h#pow() anche su gcc linux
 target_link_libraries(Frogger PRIVATE m)
