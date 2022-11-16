@@ -1,6 +1,10 @@
 #ifndef FROGGER_GAME_MANAGER_H
 #define FROGGER_GAME_MANAGER_H
 
+#ifndef FROGGER_GENERAL_H
+#include "../utils/general.h"
+#endif
+
 /*
  * Dimensioni dello schermo.
  */
@@ -69,5 +73,7 @@
 
 // Il numero di tane.
 #define LAIR_NUM 5
+
+#define MAX_BOARD_SIZE 60
 
 #endif //FROGGER_GAME_MANAGER_H
