@@ -6,6 +6,8 @@
 #include "structures.h"
 #include "globalmacros.h"
 #include "shortcuts.h"
+#include "../game/game_manager.h"
+
 #ifndef FROGGER_LIBRARIES_H
 #include "libraries.h"
 #endif

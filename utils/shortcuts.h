@@ -36,6 +36,9 @@ bool: realloc(name, sizeof(type) * size)                                \
 #ifndef SPECIFIC_ALLOCATION
 #define SPECIFIC_ALLOCATION
 
+// Ignora warning superfluo per la funzioni di allocazione.
+#pragma clang diagnostic ignored "-Wnon-literal-null-conversion"
+
 // Malloc con dichiarazione
 #define DMALLOC(name, type, size)                                       \
 type *name = (type*) malloc(sizeof(type) * (size));                     \
