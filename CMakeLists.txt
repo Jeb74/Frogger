@@ -7,7 +7,15 @@ set(CMAKE_C_STANDARD 11)
 add_compile_options(-g -Og)
 
 add_executable(Frogger
-        main.c utils/globalmacros.h utils/shortcuts.h utils/structures.h utils/libraries.h chelp/chelp.c chelp/chelp.h utils/general.h)
+        main.c
+        utils/globalmacros.h
+        utils/shortcuts.h
+        utils/structures.h
+        utils/libraries.h
+        chelp/chelp.c
+        chelp/chelp.h
+        utils/general.h
+)
 
 # utile per aggiungere math.h#pow() anche su gcc linux
 target_link_libraries(Frogger PRIVATE m)
