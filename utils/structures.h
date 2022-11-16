@@ -3,7 +3,7 @@
 
 #define GAME_MAX_NAME 32
 
-enum entities {
+enum entity_types {
     FROG,
     CAR,
     TRUCK,
@@ -11,7 +11,7 @@ enum entities {
     ENEMY_FROG,
     ENEMY_BIRD,
     ENEMY_SNAKE,
-    PROJECTILES
+    PROJECTILE
 };
 
 /*
@@ -68,7 +68,6 @@ typedef struct {
     int coins;
     char name[GAME_MAX_NAME];
     enum difficulty diff;
-
 } game;
 
 /*
@@ -96,7 +95,7 @@ enum shop {
 };
 
 struct projectile {
-    enum entities entity;
+    enum entity_types type;
     enum ability {
         POISONED_PROJECTILE,
         FAST_PROJECTILE,
@@ -113,7 +112,7 @@ struct frog {
 };
 
 struct log {
-    unsigned length;
+    unsigned WIDTH;
     unsigned *spaces;
     enum entities *onLog;
 };
