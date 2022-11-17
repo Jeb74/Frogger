@@ -20,9 +20,9 @@ if (!ptr)                                                               \
 #ifndef GENERIC_ALLOCATION
 #define GENERIC_ALLOCATION
 
-#define CALLOC (char)0
-#define MALLOC (int)0
-#define REALLOC (bool)0
+#define CALLOC (char) 0
+#define MALLOC (int) 0
+#define REALLOC (bool) 0
 
 #define ALLOC(name, type, size, atype)                                  \
 name = (type*) _Generic((atype),                                        \
@@ -96,11 +96,12 @@ type temp = *x;                                                         \
 
 #define NULL_INIT(var, type) type* var = NULL;
 
-#define PRINT_MATRIX(matrix, size1, size2, format) \
-for (int ii = 0; ii < size1; ii++) { \
-    for (int rr = 0; rr < size2; rr++) { \
-        printf(format, (matrix)[ii][rr]); \
-    } \
-    printf("\n"); \
+#define PRINT_MATRIX(matrix, size1, size2, format)                      \
+for (int ii = 0; ii < size1; ii++) {                                    \
+    for (int rr = 0; rr < size2; rr++) {                                \
+        printf(format, (matrix)[ii][rr]);                               \
+    }                                                                   \
+    printf("\n");                                                       \
 }
+
 #endif //FROGGER_SHORTCUTS_H

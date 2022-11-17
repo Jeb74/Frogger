@@ -17,6 +17,8 @@ add_executable(Frogger
         utils/general.h
         files/file_manager.c
         files/file_manager.h
+        game/game_manager.c
+        game/game_manager.h
 )
 
 # utile per aggiungere math.h#pow() anche su gcc linux

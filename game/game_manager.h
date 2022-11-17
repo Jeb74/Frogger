@@ -5,7 +5,6 @@
 #include "../utils/general.h"
 #endif
 
-
 /*
  * Dimensioni dello schermo.
  */
@@ -19,7 +18,7 @@
  * Dimensioni della rana.
  */
 #define FROG_HEIGHT 2
-#define FROG_LENGTH 2
+#define FROG_WIDTH 2
 
 /*
  * Spazio massimo di salto della rana.
@@ -55,7 +54,7 @@
  * Dimensioni del prato.
  */
 #define LAWN_HEIGHT FROG_HEIGHT
-#define LAWN_LENGTH SCREEN_WIDTH // TODO: da cambiare
+#define LAWN_WIDTH SCREEN_WIDTH // TODO: da cambiare
 
 /*
  * Dimensioni del fiume.
@@ -70,11 +69,41 @@
  * Dimensioni della tana.
  */
 #define LAIR_HEIGHT FROG_HEIGHT
-#define LAIR_LENGTH FROG_LENGTH
+#define LAIR_WIDTH FROG_WIDTH
 
 // Il numero di tane.
 #define LAIR_NUM 5
 
-#define MAX_BOARD_SIZE 60
+#define BOARD_HEIGHT 40
+#define BOARD_WIDTH 30
+
+enum coordinate {
+    X,
+    Y
+};
+
+typedef struct entity_t
+{
+    enum entity_types type;
+    int width;
+    attribute *attributes;
+} *entity;
+
+typedef union {
+    entity _entity;
+    enum frog_statuses frog_status;
+} attribute;
+
+struct cell
+{
+    entity _entity;
+};
+
+typedef struct
+{
+    int **map;
+} board;
+
+void init_game();
 
 #endif //FROGGER_GAME_MANAGER_H
