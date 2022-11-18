@@ -112,7 +112,7 @@ struct frog {
 };
 
 struct log {
-    unsigned WIDTH;
+    unsigned length;
     unsigned *spaces;
     enum entities *onLog;
 };
