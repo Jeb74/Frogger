@@ -5,6 +5,12 @@
 #include "../utils/general.h"
 #endif
 
+#include <stdbool.h>
+
+/*
+ *      COMPARTO GRAFICO
+ */
+
 /*
  * Dimensioni dello schermo.
  */
@@ -17,26 +23,26 @@
 /*
  * Dimensioni della rana.
  */
-#define FROG_HEIGHT 2
-#define FROG_WIDTH 2
+#define D_FROG_HEIGHT 2
+#define D_FROG_WIDTH 2
 
 /*
  * Spazio massimo di salto della rana.
  */
-#define FROG_MOVE_X 2
-#define FROG_MOVE_Y 2
+#define D_FROG_MOVE_X 2
+#define D_FROG_MOVE_Y 2
 
 /*
  * Dimensioni delle macchine.
  */
-#define AUTO_MIN_SIZE 4
-#define AUTO_MAX_SIZE 6
+#define D_AUTO_MIN_SIZE 4
+#define D_AUTO_MAX_SIZE 6
 
 /*
  * Dimensioni dei camion.
  */
-#define CAMION_MIN_SIZE 6
-#define CAMION_MAX_SIZE 10
+#define D_CAMION_MIN_SIZE 6
+#define D_CAMION_MAX_SIZE 10
 
 // Calcolo dell'area.
 #define CALC_AREA(x, y) (x * y)
@@ -44,64 +50,96 @@
 /*
  * Numero di corsie dell'autostrada.
  */
-#define HIGHWAY_MIN_LANES 3
-#define HIGHWAY_MAX_LANES 5
+#define D_HIGHWAY_MIN_LANES 3
+#define D_HIGHWAY_MAX_LANES 5
 
 // Altezza di una corsia dell'autostrada.
-#define HIGHWAY_MIN_HEIGHT FROG_HEIGHT
+#define D_HIGHWAY_MIN_HEIGHT D_FROG_HEIGHT
+#define D_HIGHWAY_HEIGHT D_HIGHWAY_MAX_LANES
 
 /*
  * Dimensioni del prato.
  */
-#define LAWN_HEIGHT FROG_HEIGHT
-#define LAWN_WIDTH SCREEN_WIDTH // TODO: da cambiare
+#define D_LAWN_HEIGHT D_FROG_HEIGHT
+#define D_LAWN_WIDTH SCREEN_WIDTH // TODO: da cambiare
 
 /*
  * Dimensioni del fiume.
  */
-#define RIVER_MIN_LANES 3
-#define RIVER_MAX_LANES 5
+#define D_RIVER_MIN_LANES 3
+#define D_RIVER_MAX_LANES 5
 
 // Altezza di una corsia del fiume.
-#define RIVER_MIN_HEIGHT FROG_SIZE
+#define D_RIVER_MIN_HEIGHT D_FROG_SIZE
 
 /*
  * Dimensioni della tana.
  */
-#define LAIR_HEIGHT FROG_HEIGHT
-#define LAIR_WIDTH FROG_WIDTH
+
+#define D_DEN_HEIGHT D_FROG_HEIGHT
+#define D_DEN_WIDTH D_FROG_WIDTH
 
 // Il numero di tane.
-#define LAIR_NUM 5
+#define D_DEN_NUM R_DEN_NUM
 
-#define BOARD_HEIGHT 40
-#define BOARD_WIDTH 30
+// Dimensioni della board
+#define D_BOARD_HEIGHT 26
+#define D_BOARD_WIDTH 13
+
+/*
+ *      COMPARTO DATA
+ */
+
+#define R_FROG_HEIGHT 1
+#define R_FROG_WIDTH 1
+
+#define R_BOARD_HEIGHT 13
+#define R_BOARD_WIDTH 15
+
+#define R_RIVER_LANES D_RIVER_MAX_LANES
+
+#define R_HIGHWAY_LANES D_HIGHWAY_MAX_LANES
+
+#define R_DEN_NUM 5
 
 enum coordinate {
     X,
     Y
 };
 
-typedef struct entity_t
+typedef struct
 {
     enum entity_types type;
-    int width;
-    attribute *attributes;
-} *entity;
+    short width;
+    short curr_width;
+    union {
+        void *entity;  // nemico/rana
+        enum frog_statuses *frog_status;
+    } attributes;
+} entity;
 
-typedef union {
-    entity _entity;
-    enum frog_statuses frog_status;
-} attribute;
-
-struct cell
-{
-    entity _entity;
+enum row_types {
+    WALKABLE = 0,
+    HIGHWAY = R_HIGHWAY_LANES,
+    LAWN = HIGHWAY + R_FROG_HEIGHT,
+    RIVER = LAWN + R_RIVER_LANES,
+    DEN = RIVER + R_FROG_HEIGHT
 };
 
 typedef struct
 {
-    int **map;
+    entity *_entity;
+    struct projectile *proj;
+} cell;
+
+typedef struct
+{
+    cell **cells;
+
+    struct {
+        bool direction;
+        enum row_types type;
+    } specifics[R_BOARD_HEIGHT];
 } board;
 
 void init_game();
