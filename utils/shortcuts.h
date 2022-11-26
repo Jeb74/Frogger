@@ -87,9 +87,9 @@ for (int CC = size - 1; CC > -1; CC--) {                                \
 free(element);
 
 #define SWAP_PTRS(type, x, y)                                           \
-type temp = *x;                                                         \
-*x = *y;                                                                \
-*y = temp;
+type *temp = x;                                                         \
+x = y;                                                                \
+y = temp;
 
 // Converte una stringa in un numero intero.
 #define TO_INT(var) strtol(var, NULL, 10)

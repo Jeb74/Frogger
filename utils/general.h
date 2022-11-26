@@ -2,6 +2,7 @@
 #define FROGGER_GENERAL_H
 
 #include <dirent.h>
+#include <time.h>
 
 #include "structures.h"
 #include "globalmacros.h"

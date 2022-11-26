@@ -105,16 +105,4 @@ struct projectile {
     unsigned abilities_num;
 };
 
-struct frog {
-    enum frog_statuses *statuses;
-    unsigned statuses_num;
-    int hp;
-};
-
-struct log {
-    unsigned length;
-    unsigned *spaces;
-    enum entities *onLog;
-};
-
 #endif //FROGGER_STRUCTURES_H

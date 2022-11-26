@@ -132,15 +132,28 @@ typedef struct
     struct projectile *proj;
 } cell;
 
+enum directions {
+    right,
+    left,
+    up,
+    down
+};
+
 typedef struct
 {
     cell **cells;
 
     struct {
-        bool direction;
+        enum directions direction;
         enum row_types type;
     } specifics[R_BOARD_HEIGHT];
 } board;
+
+enum move_e {
+    LINE_T,
+    FROG_T,
+    PROJECTILE_T
+};
 
 void init_game();
 
