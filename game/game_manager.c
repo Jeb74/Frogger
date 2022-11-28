@@ -1,36 +1,52 @@
 #include "game_manager.h"
 
-void move_inert(board _b)
+void move_inert(board *b)
 {
     for (short i = 0; i < R_BOARD_HEIGHT; i++) {
-        enum row_types curr_t = _b.specifics[i].type;
-        if (curr_t != WALKABLE && curr_t != LAWN && curr_t != DEN) {
-            enum directions curr = _b.specifics[i].direction;
-            for (short j = (curr == right) ? 0 : R_BOARD_WIDTH - 1;
-                 (curr == right) ? j < R_BOARD_WIDTH : j >= 0;
-                 (curr == right) ? j++ : j--) {
-                // Creo un puntatore per comodità
-                cell *tmp = &(_b.cells[i][j]);
 
-                if ((curr == right && j == R_BOARD_WIDTH - 1) || (curr == left && j == 0)) {
-                    if (tmp->_entity) {
-                        if (tmp->_entity->curr_width == tmp->_entity->width) {
-                            tmp->_entity = NULL;
-                        }
-                        else {
-                            tmp->_entity->curr_width++;
-                        }
+        enum row_types curr_t = b->specifics[i].type;
+
+        if (curr_t == WALKABLE || curr_t == LAWN || curr_t == DEN) {
+            continue;
+        }
+
+        enum directions *curr = &(b->specifics[i].direction);
+        bool is_right = *curr == right;
+
+        for (short j = is_right ? 0 : R_BOARD_WIDTH - 1, once = 0; is_right ? j < R_BOARD_WIDTH : j >= 0; is_right ? j++ : j--) {
+
+            cell *tmp = GET(b->cells, i, j);
+            entity *_entity = tmp->_entity;
+
+            if ((is_right && j == R_BOARD_WIDTH - 1) || (!is_right && j == 0)) {
+                if (_entity) {
+                    if (_entity->curr_width == _entity->width) {
+                        tmp->_entity = NULL;
+                    }
+                    else {
+                        _entity->curr_width++;
                     }
                 }
-                else {
-                    tmp->_entity = _b.cells[i][j + ((curr == right) ? 1 : -1)]._entity;
+            }
+            else {
+                tmp->_entity = b->cells[i][j + (is_right ? 1 : -1)]._entity;
+            }
+
+            if (curr_t == RIVER) {
+
+                entity *far_right = b->cells[i][0]._entity;
+                entity *far_left = b->cells[i][R_BOARD_WIDTH - 1]._entity;
+
+                if ((is_right ? far_right : far_left) && !once) {
+                    *curr = is_right ? left : right;
+                    once++;
                 }
             }
         }
     }
 }
 
-void move(void *element, enum directions direction, enum move_e type)
+void move(void *element, enum directions direction)
 {
 
 }
@@ -73,58 +89,124 @@ board genMap()
 }
 
 /**
- * Controlla se la riga e' vuota, potrebbe servire.
- * @param _board    La tabella di gioco.
- * @return          Se la riga e' vuota (true) o meno (false).
+ * Controlla il numero di entità nella riga.
+ * @param b La tabella di gioco.
+ * @return Se la riga e' vuota (true) o meno (false).
  */
-bool row_is_empty(board *_board)
+short get_entity_number(board *b, unsigned short line)
 {
-    for (int i = 0; i < R_BOARD_WIDTH; i++) {
-        if (_board->cells[i]->_entity != NULL) {
-            return false;
+    short count = 0;
+    long long int entity_addr = 0;
+    enum directions dir = b->specifics[line].direction;
+
+    bool is_right = dir == right;
+
+    for (short i = is_right ? R_BOARD_WIDTH - 1 : 0; is_right ? i >= 0 : i < R_BOARD_WIDTH; is_right ? i-- : i++)
+    {
+        entity *en = b->cells[line][i]._entity;
+
+        if (en) {
+            long long int addr = GET_ADDR(en);
+
+            if (addr != entity_addr) {
+                entity_addr = addr;
+                count++;
+            }
         }
     }
-    return true;
+    return count;
 }
 
-void print_board(board b)
+static void print_board(board *b)
 {
-    for (short i = R_BOARD_HEIGHT - 1; i >= 0; i--) {
-        for (short j = R_BOARD_WIDTH - 1; j >= 0; j--) {
-            if (b.cells[i][j]._entity) printf("[E]");
-            else printf("[ ]");
+    printf(" ");
+    for (int i = 0; i <= R_BOARD_HEIGHT; ++i)
+    {
+        printf(" %d ", i);
+    }
+    printf("\n");
+
+    for (short i = R_BOARD_HEIGHT - 1; i >= 0; i--)
+    {
+        printf("|");
+        for (short j = R_BOARD_WIDTH - 1; j >= 0; j--)
+        {
+            if (b->cells[i][j]._entity != NULL) {
+                //printf(" %c ", get_type(b->cells[i][j]._entity));GRE
+                coloredText("   ", RESET, get_type(b->cells[i][j]._entity));
+            }
+            else {
+                if (i == LAWN || i == WALKABLE || i == DEN) {
+                    coloredText("   ", RESET, WHITE + COLOR_INTENSITY);
+                }
+                else {
+                    if (i >= LAWN && i <= RIVER) {
+                        coloredText("   ", RESET, BLUE);
+                    }
+                    else {
+                        coloredText("   ", RESET, BLACK + COLOR_INTENSITY);
+                    }
+                }
+            }
         }
         printf("\n");
     }
     printf("\n\n\n");
 }
 
-void init_game()
+static bool add_entity(board *b)
 {
-    board _board = genMap();
-    print_board(_board);
-    entity t = {
-            .type = TRUCK,
-            .width = 3,
-            .curr_width = 1,
-            };
-    entity e = {
-            .type = TRUCK,
-            .width = 3,
-            .curr_width = 1,
-            };
+    entity *e;
+    ALLOC(e, entity, 1, CALLOC)
+    e->type = rand() % 3 + 1;
+    e->width = WIDTHOF(e->type);
+    ALLOC(e->attributes, union attr, (e->type == LOG) ? e->width : 5, CALLOC)
 
-    if (_board.specifics[1].direction == right) _board.cells[1][R_BOARD_WIDTH-1]._entity = &t;
-    else _board.cells[1][0]._entity = &t;
+    enum row_types this_t   = ZONEOF(e->type);
+    short line              = rand() % R_RIVER_LANES + ((this_t == RIVER) ? LAWN + 1 : R_FROG_HEIGHT);
+    bool rowIsFree          = false;
 
-    if (_board.specifics[2].direction == right) _board.cells[2][R_BOARD_WIDTH-1]._entity = &e;
-    else _board.cells[2][0]._entity = &e;
+    short eNum = get_entity_number(b, line);
+    if ((eNum < 3 && e->type != LOG) || (eNum < 1 && e->type == LOG)) {
 
-    print_board(_board);
-    for (int i = 0; i < 10; i ++) {
-        move_inert(_board);
-        print_board(_board);
+        cell *current   = b->cells[line];
+        bool isRight    = b->specifics[line].direction == right;
+
+        if (isRight)
+        {
+            rowIsFree = !(current[R_BOARD_WIDTH - 1]._entity || current[R_BOARD_WIDTH - (SAFEDIM + 1)]._entity);
+
+            if (rowIsFree) {
+                current[R_BOARD_WIDTH - 1]._entity = &(*e);
+            }
+        }
+        else
+        {
+            rowIsFree = !(current[0]._entity || current[SAFEDIM]._entity);
+
+            if (rowIsFree) {
+                current[0]._entity = &(*e);
+            }
+        }
+
+        e->curr_width = rowIsFree ? 1 : 0;
     }
+
+    return rowIsFree;
 }
 
-// FK362CM
+void init_game()
+{
+    board _board = gen_map();
+    print_board(&_board);
+    bool val = add_entity(&_board);
+    print_board(&_board);
+
+    for (int i = 0; i < 300; i ++) {
+        move_inert(&_board);
+        val = add_entity(&_board);
+        //printf("\n\n\n%i\n\n\n", val);
+        print_board(&_board);
+        usleep(500000);
+    }
+}

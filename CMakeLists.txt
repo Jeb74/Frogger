@@ -19,7 +19,7 @@ add_executable(Frogger
         files/file_manager.h
         game/game_manager.c
         game/game_manager.h
-)
+        chelp/colors.c chelp/colors.h)
 
 # utile per aggiungere math.h#pow() anche su gcc linux
 target_link_libraries(Frogger PRIVATE m)

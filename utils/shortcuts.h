@@ -78,7 +78,11 @@ for (int kk = 0; kk < size1; kk++) {                                    \
 
 #endif // SPECIFIC_ALLOCATION
 
-#define ADDR(x) printf("ADDR = %p\n", &x);
+#define PRINT_ADDR(x) printf("ADDR = %p\n", &x)
+#define GET_ADDR(ptr) (long long int) &(*ptr)
+
+#define GET_F(matrix, item) (&(*matrix)[item])
+#define GET(matrix, first, second) (&(matrix)[first][second])
 
 #define DOUBLEFREE(element, size)                                       \
 for (int CC = size - 1; CC > -1; CC--) {                                \

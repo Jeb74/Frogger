@@ -112,10 +112,10 @@ typedef struct
     enum entity_types type;
     short width;
     short curr_width;
-    union {
+    union attr {
         void *entity;  // nemico/rana
         enum frog_statuses *frog_status;
-    } attributes;
+    } *attributes;
 } entity;
 
 enum row_types {
@@ -133,8 +133,8 @@ typedef struct
 } cell;
 
 enum directions {
-    right,
     left,
+    right,
     up,
     down
 };
@@ -149,11 +149,12 @@ typedef struct
     } specifics[R_BOARD_HEIGHT];
 } board;
 
-enum move_e {
-    LINE_T,
-    FROG_T,
-    PROJECTILE_T
-};
+#define WIDTHOF(type)                                   \
+(type == CAR) ? rand() % 2 + 2 :                        \
+(type == TRUCK) ? rand() % 2 + 4 : rand() % 3 + 4       \
+
+#define ZONEOF(type)                                    \
+(type == CAR || type == TRUCK) ? HIGHWAY : RIVER
 
 void init_game();
 
