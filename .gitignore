@@ -1,0 +1,6 @@
+# Default ignored files
+/.vscode/
+/.idea/
+/build/
+/CMakeFiles/
+Makefile

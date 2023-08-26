@@ -1,0 +1,29 @@
+#ifndef FROGGER_DATA_H
+#define FROGGER_DATA_H
+
+#include "../utils/libraries.h"
+
+#define FROG_LIVES 3
+
+#define FROG_HEIGHT 1
+#define FROG_WIDTH 1
+
+#define FROG_VELOCITY_X 1
+#define FROG_VELOCITY_Y 1
+
+#define AUTO_MIN_SIZE 1
+#define AUTO_MAX_SIZE 2
+
+#define TRUCK_MIN_SIZE 2
+#define TRUCK_MAX_SIZE 3
+
+#define HIGHWAY_LANES 5
+#define HIGHWAY_LANE_HEIGHT FROG_HEIGHT
+
+#define RIVER_LANES 5
+#define RIVER_LANE_HEIGHT FROG_HEIGHT
+
+#define LAWN_LANES 2
+#define LAWN_LANE_HEIGHT FROG_HEIGHT
+
+#endif //FROGGER_DATA_H

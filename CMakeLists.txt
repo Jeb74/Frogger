@@ -1,25 +1,22 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(Frogger C)
+project(frogger C)
 
 set(CMAKE_C_STANDARD 11)
 
 # utile per usare valgrind su linux
 add_compile_options(-g -Og)
 
-add_executable(Frogger
-        main.c
-        utils/globalmacros.h
-        utils/shortcuts.h
-        utils/structures.h
-        utils/libraries.h
-        chelp/chelp.c
-        chelp/chelp.h
-        utils/general.h
-        files/file_manager.c
-        files/file_manager.h
-        game/game_manager.c
-        game/game_manager.h
-        chelp/colors.c chelp/colors.h)
+add_executable(frogger
+                main.c
+                utils/shortcuts.c
+                utils/shortcuts.h
+                utils/structures.h
+                utils/libraries.h
+                utils/concurrency/threading.c
+                utils/concurrency/threading.h
+                game/data.h
+                game/clock.c
+                game/clock.h)
 
 # utile per aggiungere math.h#pow() anche su gcc linux
-target_link_libraries(Frogger PRIVATE m)
+target_link_libraries(frogger PRIVATE m pthread ncurses)
