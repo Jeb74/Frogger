@@ -3,6 +3,4 @@
 
 #include "../utils/libraries.h"
 
-
-
 #endif //FROGGER_FROG_H

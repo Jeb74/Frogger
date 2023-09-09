@@ -15,10 +15,11 @@
 
 #include "structures.h"
 #include "shortcuts.h"
-#include "../game/data.h"
 
 #include "concurrency/threading.h"
+
+#include "../game/data.h"
 #include "../game/clock.h"
 #include "../game/frog.h"
 
-#endif //FROGGER_LIBRARIES_H
+#endif // FROGGER_LIBRARIES_H
