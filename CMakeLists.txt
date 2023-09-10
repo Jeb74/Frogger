@@ -7,16 +7,16 @@ set(CMAKE_C_STANDARD 11)
 add_compile_options(-g -Og)
 
 add_executable(frogger
-                main.c
-                utils/shortcuts.c
-                utils/shortcuts.h
-                utils/structures.h
-                utils/libraries.h
-                utils/concurrency/threading.c
-                utils/concurrency/threading.h
-                game/data.h
-                game/clock.c
-                game/clock.h)
+                src/main.c
+                src/utils/shortcuts.c
+                src/headers/shortcuts.h
+                src/headers/structures.h
+                src/headers/libraries.h
+                src/utils/concurrency/threading.c
+                src/headers/threading.h
+                src/headers/data.h
+                src/game/clock.c
+                src/headers/clock.h)
 
 # utile per aggiungere math.h#pow() anche su gcc linux
 target_link_libraries(frogger PRIVATE m pthread ncurses)
