@@ -40,7 +40,10 @@ int main(int argc, char **argv)
         endwin();
         return 0;
     }
+    erase();
     display_board(&board);
+    getch();
+    endwin();
 
     return 0;
 }

@@ -70,7 +70,6 @@ LOWCOST_INFO menu_listener(int may, int max) {
 }
 
 LOWCOST_INFO display(int max, int may) {
-    printf("Oh");
     send_menu(may, max, 0);
     return menu_listener(may, max);
 }
