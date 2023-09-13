@@ -4,7 +4,7 @@
 int main(int argc, char **argv) 
 {
     srand(time(NULL));
-
+    /*
     Board board = {
         .MAX_X = 20,
         .MAX_Y = 20,
@@ -33,6 +33,15 @@ int main(int argc, char **argv)
     cancel_threads(&timer_thread, 1);
 
     SLEEP_SECONDS(5);
+    */
+    bool started = false;
+    int choice = display(&started);
+    started = true;
+    if (choice == 0) printf("You choosed threads!\n");
+    if (choice == 1) printf("You choosed processes!\n");
+    if (choice == 2) printf("You choosed to quit!\n");
+    sleep(10);
+    endwin();
 
     return 0;
 }

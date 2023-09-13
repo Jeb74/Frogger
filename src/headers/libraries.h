@@ -5,6 +5,7 @@
 #include <pthread.h>
 
 #include <ncurses.h>
+#include <locale.h>
 
 #include <time.h>
 #include <sys/wait.h>
@@ -21,5 +22,6 @@
 #include "data.h"
 #include "clock.h"
 #include "frog.h"
+#include "graphics.h"
 
 #endif // FROGGER_LIBRARIES_H
