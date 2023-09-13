@@ -3,6 +3,14 @@
 
 #include "libraries.h"
 
+/*
+Shit lowcost
+*/
+typedef unsigned char LOWCOST_INFO;
+
+
+
+
 static pthread_mutex_t MUTEX = PTHREAD_MUTEX_INITIALIZER;
 
 typedef enum
@@ -43,7 +51,7 @@ typedef struct
 typedef struct
 {
     EntityTypes type;
-    char symbol;
+    long long *id;
 
     Position position;
     Direction direction;
@@ -75,5 +83,9 @@ typedef struct
     Board *board;
     Entity *entity;
 } ThreadArgs;
+
+typedef struct {
+    Entity *e;
+} Entity_Map;
 
 #endif //FROGGER_STRUCTURES_H

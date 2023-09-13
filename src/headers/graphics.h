@@ -39,6 +39,19 @@ attron(COLOR_PAIR(2) | A_BOLD);                     \
 center_string("> Quit\n", max);                     \
 attroff(COLOR_PAIR(2) | A_BOLD);                    \
 
-int display(bool *started);
+#define HIDEOUTS 2
+#define RIVER 7
+#define GRASS_SIDEWALK 8
+#define ROAD 13
+#define SIDEWALK 14
+
+#define HIDEOUTS_C 1
+#define RIVER_C 2
+#define GRASS_SIDEWALK_C 3
+#define ROAD_C 4
+#define SIDEWALK_C 5
+
+LOWCOST_INFO display(int max, int may);
+void display_board(Board *board);
 
 #endif

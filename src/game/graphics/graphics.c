@@ -1,35 +1,6 @@
 #include "../../headers/graphics.h"
 
-
-int display(bool *started) {
-    if (*started) return -1;
-    int max;
-    int may;
-    init_game_menu_scrn(&may, &max);
-    send_menu(may, max, 0);
-    return menu_listener(may, max);
-}
-
-
-void init_game_menu_scrn(int *y, int *x) {
-    initscr();
-    noecho();
-    cbreak();
-    keypad(stdscr, true);
-    curs_set(false);
-    getmaxyx(stdscr, *y, *x);
-}
-
-void center_string(char str[], int max) {
-    int sl = strlen(str);
-    int total_size = (int)((max - sl) / 2);
-    for (int i = 0; i < total_size; i++) {
-      addch(' ');
-    }
-    addstr(str);
-}
-
-void send_menu(int may, int max, int curr_indx) {
+void send_menu(int may, int max, LOWCOST_INFO curr_indx) {
     erase();
     start_color();
     init_pair(1, COLOR_GREEN, COLOR_BLACK);  // FROG
@@ -74,8 +45,8 @@ void send_menu(int may, int max, int curr_indx) {
     refresh();
 }
 
-int menu_listener(int may, int max) {
-    unsigned indx = 0;
+LOWCOST_INFO menu_listener(int may, int max) {
+    LOWCOST_INFO indx = 0;
     while(1) {
         int c = wgetch(stdscr);
         switch(c) {
@@ -97,3 +68,80 @@ int menu_listener(int may, int max) {
         }
     }
 }
+
+LOWCOST_INFO display(int max, int may) {
+    printf("Oh");
+    send_menu(may, max, 0);
+    return menu_listener(may, max);
+}
+
+void center_string(char str[], int max) {
+    int sl = strlen(str);
+    int total_size = (int)((max - sl) / 2);
+    for (int i = 0; i < total_size; i++) {
+      addch(' ');
+    }
+    addstr(str);
+}
+
+
+
+
+/*
+  GAME LOGICS
+*/
+
+void display_board(Board *board) {
+  int may = (*board).MAX_Y;
+  int max = (*board).MAX_X;
+  init_pair(HIDEOUTS_C, COLOR_BLACK, COLOR_GREEN);
+  init_pair(RIVER_C, COLOR_WHITE, COLOR_BLUE);
+  init_pair(GRASS_SIDEWALK_C, COLOR_BLACK, COLOR_GREEN);
+  init_pair(ROAD_C, COLOR_WHITE, COLOR_BLACK);
+  init_pair(SIDEWALK_C, COLOR_BLACK, COLOR_YELLOW);
+  for (int i = 0; i < SIDEWALK; i++) {
+    int x = -1;
+    if (i < HIDEOUTS) x = 1;
+    else if (i < RIVER) x = 2;
+    else if (i < GRASS_SIDEWALK) x = 3;
+    else if (i < ROAD) x = 4;
+    else if (i < SIDEWALK) x = 5;
+    attron(COLOR_PAIR(x));
+    for (int j = 0, s = i*2; j < max; j++) {
+      mvaddch(s, j, ' ');
+      mvaddch(s+1, j, ' '); 
+    }
+    attroff(COLOR_PAIR(x));
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

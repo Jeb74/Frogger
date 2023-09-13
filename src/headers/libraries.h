@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <string.h>
 
 #include <ncurses.h>
 #include <locale.h>
