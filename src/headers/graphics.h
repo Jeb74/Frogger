@@ -2,9 +2,10 @@
 #ifndef FROGGER_GRAPHICS_C
 #define FROGGER_GRAPHICS_C
 
-#ifndef FROGGER_LIBRARIES_C
-#include "libraries.h"
+#ifndef FROGGER_STRUCTURES_H
+#include "structures.h"
 #endif
+
 
 #define SELECTED_FIRST                               \
     attron(COLOR_PAIR(2) | A_BOLD);                  \

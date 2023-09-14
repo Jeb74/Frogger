@@ -1,5 +1,5 @@
 
-#include "headers/libraries.h"
+#include "headers/structures.h"
 
 /**
  * Inizializza la grafica.
@@ -15,6 +15,12 @@ void init_graphics(Board *board)
     getmaxyx(stdscr, board->MAX_Y, board->MAX_X);
 }
 
+void func(void *args) {
+    GameArgs *game;
+    unpack(args, game, THREAD, GAMEPKG)
+    printf("%i\n", (*game).board->lives_left);
+}
+
 int main(int argc, char **argv)
 {
     srand(time(NULL));
@@ -26,9 +32,9 @@ int main(int argc, char **argv)
         .lives_left = 3,
         .points = 0,
     };
-
+    /*
     pthread_t clock_thread;
-    ThreadArgs clock_args = {
+    GameArgs clock_args = {
         .board = &board,
     };
     create_thread(&clock_thread, manage_clock, &clock_args);
@@ -36,6 +42,7 @@ int main(int argc, char **argv)
     SLEEP_SECONDS(100);
     cancel_thread(&clock_thread);
     SLEEP_SECONDS(100);
+    */
     /*
     LOWCOST_INFO choice = initial_menu(board.MAX_X, board.MAX_Y);
     if (choice == 2)
@@ -50,4 +57,10 @@ int main(int argc, char **argv)
     endwin(); 
 
     return 0; */
+    pthread_t thread;
+    GameArgs arg = {
+        .board = &board,
+    };
+    create_thread(&thread, func, pack(THREAD, GAMEPKG, &arg));
+    pthread_join(thread, NULL);
 }

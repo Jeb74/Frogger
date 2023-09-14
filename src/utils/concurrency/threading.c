@@ -6,7 +6,7 @@
  * @param manager   Il manager del thread.
  * @param args      Gli argomenti del thread.
  */
-void create_thread(pthread_t *thread, void *manager, ThreadArgs *args)
+void create_thread(pthread_t *thread, void *manager, Package args)
 {
     pthread_create(thread, NULL, manager, args);
 }
@@ -18,7 +18,7 @@ void create_thread(pthread_t *thread, void *manager, ThreadArgs *args)
  * @param manager       Il manager dei thread.
  * @param args          Gli argomenti dei thread.
  */
-void create_threads(pthread_t *threads, int num_threads, void *manager, ThreadArgs *args)
+void create_threads(pthread_t *threads, int num_threads, void *manager, Package args)
 {
     for (int i = 0; i < num_threads; i++)
     {

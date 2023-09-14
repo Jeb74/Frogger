@@ -6,7 +6,7 @@
  */
 void *manage_clock(void *arg)
 {
-    ThreadArgs *args = (ThreadArgs *) arg;
+    GameArgs *args = (GameArgs *) arg;
     Board *board = args->board;
 
     while (true)

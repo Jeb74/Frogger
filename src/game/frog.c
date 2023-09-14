@@ -6,7 +6,7 @@
  */
 void *manage_frog(void *arg)
 {
-    ThreadArgs *args = (ThreadArgs *) arg;
+    GameArgs *args = (GameArgs *) arg;
 
     while (true)
     {

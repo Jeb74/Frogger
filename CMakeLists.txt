@@ -11,10 +11,10 @@ add_executable(frogger
                 src/utils/shortcuts.c
                 src/headers/shortcuts.h
                 src/headers/structures.h
-                src/headers/libraries.h
                 src/headers/graphics.h
                 src/game/graphics/graphics.c
                 src/utils/concurrency/threading.c
+                src/utils/structures.c
                 src/headers/threading.h
                 src/headers/data.h
                 src/game/clock.c

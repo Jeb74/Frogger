@@ -1,7 +1,9 @@
 #ifndef FROGGER_SHORTCUTS_H
 #define FROGGER_SHORTCUTS_H
 
-#include "libraries.h"
+#ifndef FROGGER_STRUCTURES_H
+#include "structures.h"
+#endif // FROGGER_STRUCTURES_H
 
 #define CRASH_IF_NULL(ptr)                         \
 if (!ptr)                                          \
@@ -22,17 +24,17 @@ if (!ptr)                                          \
 #define CALLOC(type, size) (type *) calloc((size), sizeof(type))
 #define REALLOC(type, arr, size) (type *) realloc(arr, sizeof(type) * (size))
 
-#define FREE_AFTER_USE_PTR(ptr, func) \
-    {                                 \
-        func                          \
-        free(ptr);                    \
+#define LAMBDA_FREE_PTR(ptr, func)      \
+    {                                   \
+        func                            \
+        free(ptr);                      \
     }
 
-#define FREE_AFTER_USE(type, size, ptr, func)   \
+#define LAMBDA_PTR(type, size, ptr, func)       \
     {                                           \
         type *ptr = MALLOC(type, size);         \
         CRASH_IF_NULL(ptr);                     \
-        FREE_AFTER_USE_PTR(ptr, func)           \
+        LAMBDA_FREE_PTR(ptr, func)              \
     }
 
 #define LAMBDA_ALLOCATION(type, size, ptr, func) \
@@ -42,6 +44,6 @@ if (!ptr)                                          \
         func                                     \
     }
 
-char get_entity_symbol(EntityTypes type);
+//char get_entity_symbol(EntityTypes type);
 
 #endif //FROGGER_SHORTCUTS_H
