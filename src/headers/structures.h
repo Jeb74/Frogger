@@ -75,7 +75,7 @@ typedef struct
 
     int points;
     int lives_left;
-    int time_left;
+    unsigned int time_left;
 } Board;
 
 typedef struct

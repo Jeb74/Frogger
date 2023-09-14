@@ -6,38 +6,38 @@
 #include "libraries.h"
 #endif
 
-#define SELECTED_FIRST                              \
-attron(COLOR_PAIR(2) | A_BOLD);                     \
-center_string("> Start threads version\n", max);    \
-attroff(COLOR_PAIR(2) | A_BOLD);                    \
-attron(COLOR_PAIR(1));                              \
-center_string("Start processes version\n", max);    \
-attroff(COLOR_PAIR(1));                             \
-attron(COLOR_PAIR(3));                              \
-center_string("Quit\n", max);                       \
-attroff(COLOR_PAIR(3));                            
+#define SELECTED_FIRST                               \
+    attron(COLOR_PAIR(2) | A_BOLD);                  \
+    center_string("> Start threads version\n", max); \
+    attroff(COLOR_PAIR(2) | A_BOLD);                 \
+    attron(COLOR_PAIR(1));                           \
+    center_string("Start processes version\n", max); \
+    attroff(COLOR_PAIR(1));                          \
+    attron(COLOR_PAIR(3));                           \
+    center_string("Quit\n", max);                    \
+    attroff(COLOR_PAIR(3));
 
-#define SELECTED_SECOND                             \
-attron(COLOR_PAIR(1));                              \
-center_string("Start threads version\n", max);      \
-attroff(COLOR_PAIR(1));                             \
-attron(COLOR_PAIR(2) | A_BOLD);                     \
-center_string("> Start processes version\n", max);  \
-attroff(COLOR_PAIR(2) | A_BOLD);                    \
-attron(COLOR_PAIR(3));                              \
-center_string("Quit\n", max);                       \
-attroff(COLOR_PAIR(3));                             \
+#define SELECTED_SECOND                                \
+    attron(COLOR_PAIR(1));                             \
+    center_string("Start threads version\n", max);     \
+    attroff(COLOR_PAIR(1));                            \
+    attron(COLOR_PAIR(2) | A_BOLD);                    \
+    center_string("> Start processes version\n", max); \
+    attroff(COLOR_PAIR(2) | A_BOLD);                   \
+    attron(COLOR_PAIR(3));                             \
+    center_string("Quit\n", max);                      \
+    attroff(COLOR_PAIR(3));
 
-#define SELECTED_THIRD                              \
-attron(COLOR_PAIR(1));                              \
-center_string("Start threads version\n", max);      \
-attroff(COLOR_PAIR(1));                             \
-attron(COLOR_PAIR(1));                              \
-center_string("Start processes version\n", max);    \
-attroff(COLOR_PAIR(1));                             \
-attron(COLOR_PAIR(2) | A_BOLD);                     \
-center_string("> Quit\n", max);                     \
-attroff(COLOR_PAIR(2) | A_BOLD);                    \
+#define SELECTED_THIRD                               \
+    attron(COLOR_PAIR(1));                           \
+    center_string("Start threads version\n", max);   \
+    attroff(COLOR_PAIR(1));                          \
+    attron(COLOR_PAIR(1));                           \
+    center_string("Start processes version\n", max); \
+    attroff(COLOR_PAIR(1));                          \
+    attron(COLOR_PAIR(2) | A_BOLD);                  \
+    center_string("> Quit\n", max);                  \
+    attroff(COLOR_PAIR(2) | A_BOLD);
 
 #define HIDEOUTS 2
 #define RIVER 7
@@ -51,7 +51,9 @@ attroff(COLOR_PAIR(2) | A_BOLD);                    \
 #define ROAD_C 4
 #define SIDEWALK_C 5
 
-LOWCOST_INFO display(int max, int may);
+LOWCOST_INFO initial_menu(int max, int may);
+void display_board(Board *board);
+void center_string(char str[], int max);
 void display_board(Board *board);
 
 #endif

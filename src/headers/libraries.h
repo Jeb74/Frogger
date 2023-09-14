@@ -24,5 +24,6 @@
 #include "clock.h"
 #include "frog.h"
 #include "graphics.h"
+#include "board.h"
 
 #endif // FROGGER_LIBRARIES_H
