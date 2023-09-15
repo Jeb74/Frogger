@@ -27,9 +27,7 @@ Shit lowcost
 
 typedef unsigned char LOWCOST_INFO;
 
-
 static pthread_mutex_t MUTEX = PTHREAD_MUTEX_INITIALIZER;
-
 
 /*
 Game data structures
@@ -49,7 +47,11 @@ typedef enum
 
 typedef enum
 {
-    NONE, LEFT, RIGHT, UP, DOWN
+    NONE,
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN
 } Direction;
 
 typedef struct
@@ -78,7 +80,7 @@ typedef struct
     Position position;
     Direction direction;
     Velocity velocity;
-    
+
     Size size;
 } Entity;
 
@@ -97,6 +99,8 @@ typedef struct
 
     int points;
     int lives_left;
+
+    unsigned int max_time;
     unsigned int time_left;
 } Board;
 
@@ -106,34 +110,48 @@ typedef struct
     Entity *entity;
 } GameArgs;
 
-typedef struct {
+typedef struct
+{
     Entity *e;
 } Entity_Map;
 
-typedef enum {THREAD, PROCESS} RequestType;
-typedef enum {GAMEPKG, GENPKG} ContentType;
+typedef enum
+{
+    THREAD,
+    PROCESS
+} RequestType;
+typedef enum
+{
+    GAMEPKG,
+    GENPKG
+} ContentType;
 
-typedef struct {
+typedef struct
+{
     RequestType *rqtype;
     ContentType *cntype;
-    union {
+    union
+    {
         GameArgs *targ;
         void *garg;
     } arg;
-} *Package;
+} Package;
 
-#define unpack(_pkg, buffer, rq_type, cn_type)      \
-Package pkg = (Package)_pkg;                        \
-bool validrq = rq_type == (*(*pkg).rqtype);         \
-bool validcn = cn_type == (*(*pkg).cntype);         \
-if (!validrq || !validcn) {                         \
-    perror("[Unpacking Error]Invalid request.");    \
-    exit(1);                                        \
-}                                                   \
-if (cn_type == GAMEPKG) buffer = (*pkg).arg.targ;   \
-else buffer = (*pkg).arg.garg;
+#define unpack(_pkg, buffer, rq_type, cn_type)        \
+    Package *pkg = (Package *) _pkg;                  \
+    bool validrq = rq_type == (*(*pkg).rqtype);       \
+    bool validcn = cn_type == (*(*pkg).cntype);       \
+    if (!validrq || !validcn)                         \
+    {                                                 \
+        perror("[Unpacking Error] Invalid request."); \
+        exit(1);                                      \
+    }                                                 \
+    if (cn_type == GAMEPKG)                           \
+        buffer = (GameArgs *) (*pkg).arg.targ;        \
+    else                                              \
+        buffer = (*pkg).arg.garg
 
-Package pack(RequestType rqtype, ContentType cntype, void *arg);
+Package *pack(RequestType rqtype, ContentType cntype, void *arg);
 
 #include "shortcuts.h"
 
@@ -145,4 +163,4 @@ Package pack(RequestType rqtype, ContentType cntype, void *arg);
 #include "graphics.h"
 #include "board.h"
 
-#endif //FROGGER_STRUCTURES_H
+#endif // FROGGER_STRUCTURES_H

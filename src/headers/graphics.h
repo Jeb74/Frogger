@@ -6,27 +6,26 @@
 #include "structures.h"
 #endif
 
-
-#define SELECTED_FIRST                               \
-    attron(COLOR_PAIR(2) | A_BOLD);                  \
-    center_string("> Start threads version\n", max); \
-    attroff(COLOR_PAIR(2) | A_BOLD);                 \
-    attron(COLOR_PAIR(1));                           \
-    center_string("Start processes version\n", max); \
-    attroff(COLOR_PAIR(1));                          \
-    attron(COLOR_PAIR(3));                           \
-    center_string("Quit\n", max);                    \
+#define SELECTED_FIRST                                  \
+    attron(COLOR_PAIR(2) | A_BOLD);                     \
+    center_string("> Start threads version <\n", max);  \
+    attroff(COLOR_PAIR(2) | A_BOLD);                    \
+    attron(COLOR_PAIR(1));                              \
+    center_string("Start processes version\n", max);    \
+    attroff(COLOR_PAIR(1));                             \
+    attron(COLOR_PAIR(3));                              \
+    center_string("Quit\n", max);                       \
     attroff(COLOR_PAIR(3));
 
-#define SELECTED_SECOND                                \
-    attron(COLOR_PAIR(1));                             \
-    center_string("Start threads version\n", max);     \
-    attroff(COLOR_PAIR(1));                            \
-    attron(COLOR_PAIR(2) | A_BOLD);                    \
-    center_string("> Start processes version\n", max); \
-    attroff(COLOR_PAIR(2) | A_BOLD);                   \
-    attron(COLOR_PAIR(3));                             \
-    center_string("Quit\n", max);                      \
+#define SELECTED_SECOND                                     \
+    attron(COLOR_PAIR(1));                                  \
+    center_string("Start threads version\n", max);          \
+    attroff(COLOR_PAIR(1));                                 \
+    attron(COLOR_PAIR(2) | A_BOLD);                         \
+    center_string("> Start processes version <\n", max);    \
+    attroff(COLOR_PAIR(2) | A_BOLD);                        \
+    attron(COLOR_PAIR(3));                                  \
+    center_string("Quit\n", max);                           \
     attroff(COLOR_PAIR(3));
 
 #define SELECTED_THIRD                               \
@@ -37,7 +36,7 @@
     center_string("Start processes version\n", max); \
     attroff(COLOR_PAIR(1));                          \
     attron(COLOR_PAIR(2) | A_BOLD);                  \
-    center_string("> Quit\n", max);                  \
+    center_string("> Quit <\n", max);                \
     attroff(COLOR_PAIR(2) | A_BOLD);
 
 #define HIDEOUTS 2
@@ -52,9 +51,10 @@
 #define ROAD_C 4
 #define SIDEWALK_C 5
 
-LOWCOST_INFO initial_menu(int max, int may);
-void display_board(Board *board);
+void init_graphics(Board *board);
 void center_string(char str[], int max);
+
+LOWCOST_INFO initial_menu(int max, int may);
 void display_board(Board *board);
 
 #endif

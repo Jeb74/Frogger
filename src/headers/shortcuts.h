@@ -44,6 +44,7 @@ if (!ptr)                                          \
         func                                     \
     }
 
-//char get_entity_symbol(EntityTypes type);
+char get_entity_symbol(EntityTypes type);
+void end_game(Board *board);
 
 #endif //FROGGER_SHORTCUTS_H

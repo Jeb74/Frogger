@@ -1,6 +1,21 @@
 #include "../../headers/graphics.h"
 
 /**
+ * Inizializza la grafica.
+ * @param board La tabella di gioco.
+ */
+void init_graphics(Board *board)
+{
+    initscr();
+    noecho();
+    getmaxyx(stdscr, board->MAX_Y, board->MAX_X);
+
+    curs_set(false);
+    keypad(stdscr, true);
+    start_color();
+}
+
+/**
  * Menu' di selezione della modalita' da utilizzare per il gioco.
  * @param max La larghezza della finestra.
  * @param may L'altezza della finestra.
@@ -10,7 +25,6 @@ void send_menu(int may, int max, LOWCOST_INFO curr_indx)
 {
     erase();
 
-    start_color();
     init_pair(1, COLOR_GREEN, COLOR_BLACK);  // FROG
     init_pair(2, COLOR_YELLOW, COLOR_BLACK); // SELECTED
     init_pair(3, COLOR_RED, COLOR_BLACK);    // QUIT
@@ -96,12 +110,22 @@ LOWCOST_INFO menu_listener(int may, int max)
     }
 }
 
+/**
+ * Menu' di selezione della modalita' da utilizzare per il gioco.
+ * @param max La larghezza della finestra.
+ * @param may L'altezza della finestra.
+*/
 LOWCOST_INFO initial_menu(int max, int may) 
 {
     send_menu(may, max, 0);
     return menu_listener(may, max);
 }
 
+/**
+ * Stampa una stringa al centro del terminale.
+ * @param str La stringa da stampare.
+ * @param max La larghezza della finestra
+*/
 void center_string(char str[], int max)
 {
     int sl = strlen(str);

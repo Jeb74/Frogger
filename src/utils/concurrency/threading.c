@@ -6,7 +6,7 @@
  * @param manager   Il manager del thread.
  * @param args      Gli argomenti del thread.
  */
-void create_thread(pthread_t *thread, void *manager, Package args)
+void create_thread(pthread_t *thread, void *manager, Package *args)
 {
     pthread_create(thread, NULL, manager, args);
 }
@@ -18,12 +18,21 @@ void create_thread(pthread_t *thread, void *manager, Package args)
  * @param manager       Il manager dei thread.
  * @param args          Gli argomenti dei thread.
  */
-void create_threads(pthread_t *threads, int num_threads, void *manager, Package args)
+void create_threads(pthread_t *threads, int num_threads, void *manager, Package *args)
 {
     for (int i = 0; i < num_threads; i++)
     {
         create_thread(&(threads[i]), manager, args);
     }
+}
+
+/**
+ * Aspetta che un thread termini.
+ * @param thread    Il thread da aspettare.
+ */
+void join_thread(pthread_t *thread)
+{
+    pthread_join(*thread, NULL);
 }
 
 /**
@@ -40,10 +49,10 @@ int cancel_thread(pthread_t *thread)
  * @param threads       L'array di thread da distruggere.
  * @param num_threads   Il numero di thread da distruggere.
  */
-int *cancel_threads(pthread_t *threads, int num_threads) 
+int *cancel_threads(pthread_t *threads, int num_threads)
 {
-    int* codes = (int*) calloc(sizeof(int), num_threads);
-    for (int i = 0; i < num_threads; i++) 
+    int *codes = (int *)calloc(sizeof(int), num_threads);
+    for (int i = 0; i < num_threads; i++)
     {
         codes[i] = pthread_cancel(threads[i]);
     }
