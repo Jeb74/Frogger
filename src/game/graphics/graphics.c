@@ -4,11 +4,11 @@
  * Inizializza la grafica.
  * @param board La tabella di gioco.
  */
-void init_graphics(Board *board)
+void init_graphics(Screen *scrn)
 {
     initscr();
     noecho();
-    getmaxyx(stdscr, board->MAX_Y, board->MAX_X);
+    getmaxyx(stdscr, scrn->y, scrn->x);
 
     curs_set(false);
     keypad(stdscr, true);
@@ -145,39 +145,67 @@ void center_string(char str[], int max)
 
 void display_board(Board *board)
 {
-    int max_Y = (*board).MAX_Y;
-    int max_X = (*board).MAX_X;
+    int starting_y = board->top_y;
+    int terminating_y = board->low_y;
+    int width = board->screen_x;
 
-    init_pair(HIDEOUTS_C, COLOR_BLACK, COLOR_GREEN);
-    init_pair(RIVER_C, COLOR_WHITE, COLOR_BLUE);
-    init_pair(GRASS_SIDEWALK_C, COLOR_BLACK, COLOR_GREEN);
-    init_pair(ROAD_C, COLOR_WHITE, COLOR_BLACK);
-    init_pair(SIDEWALK_C, COLOR_BLACK, COLOR_YELLOW);
 
-    for (int i = 0; i < SIDEWALK; i++) 
+    for (int i = 0; i < SIDEWALK; i++)
     {
         int x = -1;
 
-        if (i < HIDEOUTS) x = 1;
-        else if (i < RIVER) x = 2;
-        else if (i < GRASS_SIDEWALK) x = 3;
-        else if (i < ROAD) x = 4;
-        else if (i < SIDEWALK) x = 5;
+        if (i < HIDEOUTS) x = HIDEOUTS_C;
+        else if (i < RIVER) x = RIVER_C;
+        else if (i < GRASS_SIDEWALK) x = GRASS_SIDEWALK_C;
+        else if (i < ROAD) x = ROAD_C;
+        else if (i < SIDEWALK) x = SIDEWALK_C;
 
-        attron(COLOR_PAIR(x));
-
-        for (int j = 0, s = i * 2; j < max_X; j++)
+        attron(COLOR_PAIR(x));   
+        for (int j = 0, s = starting_y + i * 2; j < width; j++)
         {
             mvaddch(s, j, ' ');
-            mvaddch(s + 1, j, ' '); 
+            mvaddch(s + 1, j, ' ');
         }
-
         attroff(COLOR_PAIR(x));
     }
 }
 
+void update_bar(int y, int start, int end, int pc, char title[]) {
+    end = end - start;
+    mvaddstr(y-1, start, title);
+    int pair = pc > 75 ? HP_FULL_SLOT : pc > 25 ? HP_PARTIAL_SLOT : HP_EMPTY_SLOT;
+    for (int i = 0, once = true; i < end; i++) {
+        if (i > (float)end/100*pc && once) {
+            pair = RESET_COLOR;
+            once = false;
+        }
+        attron(COLOR_PAIR(pair));
+        mvaddch(y, start + i, ' ');
+        mvaddch(y + 1, start + i, ' ');
+        attroff(COLOR_PAIR(pair));
+    }
+}
 
+void update_bars(Board board, Bar lf, Bar tm) {
+    int location_pos = board.top_y / 2 - 1;
+    int lcs_1 = 0;
+    int lcs_2 = lcs_1 + calwidth(board.screen_x, 3, 0);
+    int lcs_3 = lcs_2 + calwidth(board.screen_x, 3, 1);
+    int lce_3 = lcs_3 + calwidth(board.screen_x, 3, 2);
+    char str[30];
+    sprintf(str, "Remaining Health: (%i) <3", board.lives_left);
+    update_bar(location_pos, lcs_3 + 1, lce_3 - 2, (int)lf.percent_full, str);
+    sprintf(str, "Time Left: %i second/s", board.time_left);
+    update_bar(location_pos, lcs_1 + 1, lcs_2 - 1, (int)tm.percent_full, str);
+}
 
+void update_graphics(Board *board) {
+    Bar lf = {.percent_full = (float)board->lives_left/board->lives_on_start*100};
+    Bar tm = {.percent_full = (float)board->time_left/board->max_time*100};
+    update_bars(*board, lf, tm);
+    display_board(board);
+    refresh();
+}
 
 
 

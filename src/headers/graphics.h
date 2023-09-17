@@ -45,16 +45,50 @@
 #define ROAD 13
 #define SIDEWALK 14
 
-#define HIDEOUTS_C 1
-#define RIVER_C 2
-#define GRASS_SIDEWALK_C 3
-#define ROAD_C 4
-#define SIDEWALK_C 5
+#define RESET_COLOR 1
 
-void init_graphics(Board *board);
+#define HIDEOUTS_C 2
+#define RIVER_C 3
+#define GRASS_SIDEWALK_C 4
+#define ROAD_C 5
+#define SIDEWALK_C 6
+
+#define HP_FULL_SLOT 7
+#define HP_PARTIAL_SLOT 8
+#define HP_EMPTY_SLOT 9
+
+#define INIT_COLORS                                         \
+{                                                           \
+    init_pair(RESET_COLOR, COLOR_BLACK, COLOR_BLACK);       \
+                                                            \
+    init_pair(HIDEOUTS_C, COLOR_BLACK, COLOR_GREEN);        \
+    init_pair(RIVER_C, COLOR_BLACK, COLOR_BLUE);            \
+    init_pair(GRASS_SIDEWALK_C, COLOR_BLACK, COLOR_GREEN);  \
+    init_pair(ROAD_C, COLOR_WHITE, COLOR_BLACK);            \
+    init_pair(SIDEWALK_C, COLOR_BLACK, COLOR_YELLOW);       \
+                                                            \
+    init_pair(HP_FULL_SLOT, COLOR_WHITE, COLOR_GREEN);      \
+    init_pair(HP_PARTIAL_SLOT, COLOR_WHITE, COLOR_YELLOW);  \
+    init_pair(HP_EMPTY_SLOT, COLOR_WHITE, COLOR_RED);       \
+}
+
+#define DISABLE_COLORS                                      \
+{                                                           \
+    free_pair(RESET_COLOR);                                 \
+    free_pair(HIDEOUTS_C);                                  \
+    free_pair(RIVER_C);                                     \
+    free_pair(GRASS_SIDEWALK_C);                            \
+    free_pair(ROAD_C);                                      \
+    free_pair(SIDEWALK_C);                                  \
+    free_pair(HP_FULL_SLOT);                                \
+    free_pair(HP_PARTIAL_SLOT);                             \
+    free_pair(HP_EMPTY_SLOT);                               \
+}
+
+void init_graphics(Screen *scrn);
 void center_string(char str[], int max);
 
 LOWCOST_INFO initial_menu(int max, int may);
-void display_board(Board *board);
+void update_graphics(Board *board);
 
 #endif

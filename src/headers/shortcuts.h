@@ -44,6 +44,8 @@ if (!ptr)                                          \
         func                                     \
     }
 
+LOWCOST_INFO getAction(int argc, char *argv[]);
+unsigned int calwidth(unsigned int width, unsigned int panels, LOWCOST_INFO indx);
 char get_entity_symbol(EntityTypes type);
 void end_game(Board *board);
 

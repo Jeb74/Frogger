@@ -11,13 +11,10 @@
 #include <time.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <sys/select.h>
 
 #ifndef FROGGER_STRUCTURES_H
 #define FROGGER_STRUCTURES_H
-
-#ifndef FROGGER_STRUCTURES_H
-#include "structures.h"
-#endif // FROGGER_STRUCTURES_H
 
 #pragma once
 
@@ -93,16 +90,47 @@ typedef struct
 
 typedef struct
 {
-    int MAX_X;
-    int MAX_Y;
+    unsigned int screen_x;
+    unsigned int top_y;
+    unsigned int low_y;
     bool is_game_won;
 
-    int points;
-    int lives_left;
+    unsigned int points;
+    LOWCOST_INFO lives_on_start;
+    LOWCOST_INFO lives_left;
 
     unsigned int max_time;
     unsigned int time_left;
 } Board;
+
+#define INIT_BOARD(board, screen)                                       \
+{                                                                       \
+    board.screen_x = screen.x;                                          \
+    int screen_mid = ((int)screen.y/2);                                 \
+    board.top_y = screen_mid - 3 - ((screen.y % 2 == 0) ?  7 : 6);      \
+    board.low_y = screen_mid - 3 + ((screen.y % 2 == 0) ?  6 : 7);      \
+    board.is_game_won = false;                                          \
+    board.points = 0;                                                   \
+    board.lives_on_start = 3;                                           \
+    board.lives_left = 3;                                               \
+    board.max_time = 300;                                               \
+    board.time_left = 300;                                              \
+}
+
+/*
+Game data structures </>
+*/
+
+typedef enum {
+    THREAD,
+    PROCESS
+} ExecutionMode;
+
+typedef struct {
+    unsigned int y;
+    unsigned int x;
+    ExecutionMode exm;
+} Screen;
 
 typedef struct
 {
@@ -115,11 +143,12 @@ typedef struct
     Entity *e;
 } Entity_Map;
 
-typedef enum
-{
-    THREAD,
-    PROCESS
-} RequestType;
+typedef struct {
+    unsigned int size;
+    unsigned int percent_full;
+} Bar;
+
+typedef ExecutionMode RequestType;
 typedef enum
 {
     GAMEPKG,
@@ -156,6 +185,7 @@ Package *pack(RequestType rqtype, ContentType cntype, void *arg);
 #include "shortcuts.h"
 
 #include "threading.h"
+#include "processing.h"
 
 #include "data.h"
 #include "clock.h"

@@ -1,4 +1,4 @@
-# Install script for directory: /workspaces/Frogger
+# Install script for directory: /home/mrccode/Desktop/Languages Projects/C/Frogger
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/workspaces/Frogger/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/mrccode/Desktop/Languages Projects/C/Frogger/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
