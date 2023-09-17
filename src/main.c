@@ -19,6 +19,7 @@ void m_testing(int argc, char *argv[])
             result = getAction(argc, argv);
         else
             result = initial_menu(screen.x, screen.y);
+        
         if (result >= 3)
         {
             screen.exm = result % 3;
@@ -26,10 +27,12 @@ void m_testing(int argc, char *argv[])
         }
         else
             screen.exm = result;
+        
         if (screen.exm == 0)
             thread_mode_exec(screen);
         else if (screen.exm == 1)
             process_mode_exec(screen);
+        
     } while (result != 2);
 }
 
