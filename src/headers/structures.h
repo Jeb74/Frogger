@@ -16,6 +16,7 @@
 #ifndef FROGGER_STRUCTURES_H
 #define FROGGER_STRUCTURES_H
 
+// Richiede l'header una sola volta, per evitare errori di ridefinizione.
 #pragma once
 
 /*
@@ -96,37 +97,39 @@ typedef struct
     bool is_game_won;
 
     unsigned int points;
-    LOWCOST_INFO lives_on_start;
-    LOWCOST_INFO lives_left;
+    LOWCOST_INFO lifes_on_start;
+    LOWCOST_INFO lifes_left;
 
     unsigned int max_time;
     unsigned int time_left;
 } Board;
 
-#define INIT_BOARD(board, screen)                                       \
-{                                                                       \
-    board.screen_x = screen.x;                                          \
-    int screen_mid = ((int)screen.y/2);                                 \
-    board.top_y = screen_mid - 3 - ((screen.y % 2 == 0) ?  7 : 6);      \
-    board.low_y = screen_mid - 3 + ((screen.y % 2 == 0) ?  6 : 7);      \
-    board.is_game_won = false;                                          \
-    board.points = 0;                                                   \
-    board.lives_on_start = 3;                                           \
-    board.lives_left = 3;                                               \
-    board.max_time = 300;                                               \
-    board.time_left = 300;                                              \
-}
+#define INIT_BOARD(board, screen)                                     \
+    {                                                                 \
+        board.screen_x = screen.x;                                    \
+        int screen_mid = ((int)screen.y / 2);                         \
+        board.top_y = screen_mid - 3 - ((screen.y % 2 == 0) ? 7 : 6); \
+        board.low_y = screen_mid - 3 + ((screen.y % 2 == 0) ? 6 : 7); \
+        board.is_game_won = false;                                    \
+        board.points = 0;                                             \
+        board.lifes_on_start = 3;                                     \
+        board.lifes_left = 3;                                         \
+        board.max_time = 300;                                         \
+        board.time_left = 300;                                        \
+    }
 
 /*
 Game data structures </>
 */
 
-typedef enum {
+typedef enum
+{
     THREAD,
     PROCESS
 } ExecutionMode;
 
-typedef struct {
+typedef struct
+{
     unsigned int y;
     unsigned int x;
     ExecutionMode exm;
@@ -143,12 +146,14 @@ typedef struct
     Entity *e;
 } Entity_Map;
 
-typedef struct {
-    unsigned int size;
-    unsigned int percent_full;
+typedef struct
+{
+    double percent_full;
+    double percent_empty;
 } Bar;
 
 typedef ExecutionMode RequestType;
+
 typedef enum
 {
     GAMEPKG,
@@ -167,7 +172,7 @@ typedef struct
 } Package;
 
 #define unpack(_pkg, buffer, rq_type, cn_type)        \
-    Package *pkg = (Package *) _pkg;                  \
+    Package *pkg = (Package *)_pkg;                   \
     bool validrq = rq_type == (*(*pkg).rqtype);       \
     bool validcn = cn_type == (*(*pkg).cntype);       \
     if (!validrq || !validcn)                         \
@@ -176,14 +181,13 @@ typedef struct
         exit(1);                                      \
     }                                                 \
     if (cn_type == GAMEPKG)                           \
-        buffer = (GameArgs *) (*pkg).arg.targ;        \
+        buffer = (GameArgs *)(*pkg).arg.targ;         \
     else                                              \
         buffer = (*pkg).arg.garg
 
 Package *pack(RequestType rqtype, ContentType cntype, void *arg);
 
 #include "shortcuts.h"
-
 #include "threading.h"
 #include "processing.h"
 

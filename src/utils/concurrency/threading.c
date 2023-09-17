@@ -51,11 +51,13 @@ int cancel_thread(pthread_t *thread)
  */
 int *cancel_threads(pthread_t *threads, int num_threads)
 {
-    int *codes = (int *)calloc(sizeof(int), num_threads);
+    int *codes = MALLOC(int, num_threads);
+
     for (int i = 0; i < num_threads; i++)
     {
         codes[i] = pthread_cancel(threads[i]);
     }
+
     return codes;
 }
 

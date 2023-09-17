@@ -24,16 +24,18 @@ void *manage_clock(void *arg)
  * Formatta il timer del gioco.
  * @param board La tabella di gioco.
  * @return      Il timer formattato (NECESSITA DI FREE DOPO L'USE).
-*/
-char *format_clock(Board *board)
+ */
+char *format_clock_numeric(Board *board)
 {
-    char *clock = MALLOC(char, MSG_SIZE_TIME_LEFT);
+    char *clock = MALLOC_TERM(char, ALLOC_SIZE_TIME_LEFT);
     CRASH_IF_NULL(clock);
 
-    int minutes = (int) (board->time_left / 60);
-    int seconds = (int) (board->time_left % 60);
+    int time_left = board->time_left;
 
-    snprintf(clock, MSG_SIZE_TIME_LEFT, "TIME LEFT: %02i:%02i", minutes, seconds);
+    int minutes = (int)(time_left / 60);
+    int seconds = (int)(time_left % 60);
+
+    snprintf(clock, ALLOC_SIZE_TIME_LEFT, "%02i:%02i", minutes, seconds);
 
     return clock;
 }
@@ -42,26 +44,28 @@ char *format_clock(Board *board)
  * Formatta il timer del gioco in una barra.
  * @param board La tabella di gioco.
  * @return      Il timer formattato (NECESSITA DI FREE DOPO L'USE).
-*/
+ */
 char *format_clock_bar(Board *board)
 {
-    char *clock = MALLOC(char, MSG_SIZE_TIME_LEFT_BAR);
+    char *clock = MALLOC_TERM(char, ALLOC_SIZE_TIME_LEFT_BAR);
     CRASH_IF_NULL(clock);
 
     int seconds = board->time_left;
     int max_time = board->max_time;
 
-    int left = MSG_SIZE_TIME_LEFT_BAR - 13;
-    int seconds_per_line = max_time / left;
-    int lines = seconds / seconds_per_line;
+    int true_size = ALLOC_SIZE_TIME_LEFT_BAR - TERM;
+    int left = true_size - ALREADY_WRITTEN_CHARS;
 
-    snprintf(clock, MSG_SIZE_TIME_LEFT_BAR, "TIME LEFT: [           ]");
+    int seconds_per_char = max_time / left;
+    int chars = seconds / seconds_per_char;
 
-    for (int i = 1; i < MSG_SIZE_TIME_LEFT_BAR; i++)
+    snprintf(clock, ALLOC_SIZE_TIME_LEFT_BAR, "TIME LEFT: [           ]");
+
+    for (int i = 1; i < true_size; i++)
     {
-        if (i <= lines)
+        if (i <= chars)
         {
-            clock[i + 11] = TIME_LEFT_CHAR;
+            clock[i + WRITTEN_TIME_CHARS] = TIME_LEFT_CHAR;
         }
     }
 
