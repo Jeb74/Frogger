@@ -70,23 +70,10 @@
     init_pair(HP_EMPTY_SLOT, COLOR_WHITE, COLOR_RED);       \
 }
 
-#define DISABLE_COLORS                                      \
-{                                                           \
-    free_pair(RESET_COLOR);                                 \
-    free_pair(HIDEOUTS_C);                                  \
-    free_pair(RIVER_C);                                     \
-    free_pair(GRASS_SIDEWALK_C);                            \
-    free_pair(ROAD_C);                                      \
-    free_pair(SIDEWALK_C);                                  \
-    free_pair(HP_FULL_SLOT);                                \
-    free_pair(HP_PARTIAL_SLOT);                             \
-    free_pair(HP_EMPTY_SLOT);                               \
-}
-
 void init_graphics(Screen *scrn);
 void center_string(char str[], int max);
 
 LOWCOST_INFO initial_menu(int max, int may);
-void update_graphics(Board *board);
+void update_graphics(Board *board, Bar lf, Bar tm);
 
 #endif

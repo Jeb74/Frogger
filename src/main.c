@@ -10,8 +10,8 @@ void func(void *args)
 void m_testing(int argc, char *argv[])
 {
     Screen screen;
+    
     init_graphics(&screen);
-
     LOWCOST_INFO result = -1;
     do
     {
@@ -80,6 +80,7 @@ void a_testing()
     /* test format_clock_numeric */
     char *clock = format_clock_numeric(&board);
     printf("%s\n", clock);
+    free(clock);
 
     /* test format_clock_bar */
     clock = format_clock_bar(&board);
@@ -95,7 +96,6 @@ void a_testing()
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
-    a_testing();
-    // m_testing();
+    m_testing(argc, argv);
     return 0;
 }

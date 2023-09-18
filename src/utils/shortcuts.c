@@ -107,15 +107,16 @@ unsigned int calwidth(unsigned int width, unsigned int panels, LOWCOST_INFO indx
     if (width != panels*defsize) 
     {
         int leftovers = width % panels;
-
-        if (panels % 2 == 0)
-            if (indx == panels / 2 + 1 || indx == panels / 2)
-                result = defsize + leftovers / 2;
-        else if (indx == panels / 2 + 1)
-            result = defsize + leftovers;
-        
-        return result;
+        if (panels % 2 == 0) {
+            if (indx == panels / 2 + 1 || indx == panels / 2) {
+                return (defsize + leftovers) / 2;
+            }
+        }
+        else if (indx == panels / 2 + 1) {
+            return (defsize + leftovers);
+        }
     }
+    return defsize;
 }
 /**
  * Conta il numero di cifre di un numero.
@@ -172,7 +173,7 @@ double calculate_percentage(int dividend, int divisor)
  * @param current   Il valore corrente.
  * @return          La barra.
 */
-Bar create_bar(Board *board, size_t size, int max, int current)
+Bar create_bar(Board *board, int max, int current)
 {
     Bar bar;
 
@@ -190,9 +191,9 @@ Bar create_bar(Board *board, size_t size, int max, int current)
  * @param size  La dimensione della barra.
  * @return      La barra.
 */
-Bar create_life_bar(Board *board, size_t size)
+Bar create_life_bar(Board *board)
 {
-    return create_bar(board, size, board->lifes_on_start, board->lifes_left);
+    return create_bar(board, board->lifes_on_start, board->lifes_left);
 }
 
 /**
@@ -201,9 +202,9 @@ Bar create_life_bar(Board *board, size_t size)
  * @param size  La dimensione della barra.
  * @return      La barra.
 */
-Bar create_time_bar(Board *board, size_t size)
+Bar create_time_bar(Board *board)
 {
-    return create_bar(board, size, board->max_time, board->time_left);
+    return create_bar(board, board->max_time, board->time_left);
 }
 
 /**
@@ -282,3 +283,58 @@ char **format_number(int number, char empty, char fill)
 
     return result;
 }
+
+char *numToString(int num, unsigned int size, bool fill) {
+    size = size > 0 ? size : 11;
+    char *numb = (char*) calloc(size, sizeof(char));
+    numb[0] = '0';
+    int dim = 0;
+    while (num != 0 || fill) {
+        for (int i = dim; dim != 0 && i > -1; i--) {
+            numb[i] = numb[i - 1];
+        }
+        numb[0] = (num % 10) + '0';
+        if (num > 0) num /= 10;
+        dim++;
+        if (strlen(numb) == size && fill) fill = !fill;
+    }
+    size = strlen(numb);
+    numb = (char*) realloc(numb, sizeof(char)*(size + 1));
+    numb[size] = '\0';
+    return numb;
+}
+
+
+char *build_string(const char *__restrict_arr format, ...) {
+    int slen = strlen(format);
+    va_list args;
+    va_start(args, format);
+    char **elements = CALLOC(char*, 30);
+    int count = 0;
+    for (int i = 0; i < strlen(format); i++) {
+        if (format[i] == '%' && format[i+1] == 's') {
+            elements[count] = va_arg(args, char*);
+            slen += strlen(elements[count]);
+            count++;
+        }
+    }
+    char *output = CALLOC(char, slen+1);
+    for (int i = 0, j = 0, q = 0; i < slen; i++, q++) {
+        if (format[q] == '%' && format[q+1] == 's') {
+            q += 1;
+            for (int k = 0; k < strlen(elements[j]); k++, i++) {
+                output[i] = elements[j][k];
+            }
+            i--;
+            j++;
+        }
+        else output[i] = format[q];
+    }
+    free(elements);
+    int ol = strlen(output);
+    output = (char*) realloc(output, sizeof(char)*ol+1);
+    output[ol] = 0;
+    return output;
+
+}
+

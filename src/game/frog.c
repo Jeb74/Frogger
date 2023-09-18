@@ -21,12 +21,11 @@ void *manage_frog(void *arg)
  */
 char *format_lives_numeric(Board *board)
 {
-    int alloc_size = count_digits(board->lifes_left) + TERM;
+    char *lifes = numToString(board->lifes_left, -1, false);
+    CRASH_IF_NULL(lifes);
+    char *lifes_fmt = build_string("%s \xE2\x99\xA5", lifes);
+    CRASH_IF_NULL(lifes_fmt);
+    free(lifes);
 
-    char *lives = MALLOC(char, alloc_size);
-    CRASH_IF_NULL(lives);
-
-    snprintf(lives, alloc_size, "%i", board->lifes_left);
-
-    return lives;
+    return lifes_fmt;
 }

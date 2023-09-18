@@ -67,13 +67,15 @@ void end_game(Board *board);
 int count_digits(int value);
 int divide_if_possible(int dividend, int divisor);
 
-Bar create_bar(Board *board, size_t size, int max, int current);
-Bar create_life_bar(Board *board, size_t size);
-Bar create_time_bar(Board *board, size_t size);
+Bar create_bar(Board *board, int max, int current);
+Bar create_life_bar(Board *board);
+Bar create_time_bar(Board *board);
 
 void calculate_bar(Bar *bar, int max, int current);
 void calculate_life_bar(Bar *bar, Board *board);
 void calculate_time_bar(Bar *bar, Board *board);
 char **format_number(int number, char empty, char fill);
+char *numToString(int num, unsigned int size, bool fill);
+char *build_string(const char *__restrict_arr format, ...);
 
 #endif // FROGGER_SHORTCUTS_H

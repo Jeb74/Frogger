@@ -25,19 +25,17 @@ void *manage_clock(void *arg)
  * @param board La tabella di gioco.
  * @return      Il timer formattato (NECESSITA DI FREE DOPO L'USE).
  */
-char *format_clock_numeric(Board *board)
-{
-    char *clock = MALLOC_TERM(char, ALLOC_SIZE_TIME_LEFT);
-    CRASH_IF_NULL(clock);
-
+char *format_clock_numeric(Board *board) {
     int time_left = board->time_left;
 
-    int minutes = (int)(time_left / 60);
-    int seconds = (int)(time_left % 60);
+    char* minutes = numToString((int)(time_left / 60), 2, true);
+    char* seconds = numToString((int)(time_left % 60), 2, true);
 
-    snprintf(clock, ALLOC_SIZE_TIME_LEFT, "%02i:%02i", minutes, seconds);
+    char *clock_fmt = build_string("%s:%s", minutes, seconds);
+    free(minutes);
+    free(seconds); 
 
-    return clock;
+    return clock_fmt;
 }
 
 /**

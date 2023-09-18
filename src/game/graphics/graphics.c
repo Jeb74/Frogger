@@ -6,6 +6,7 @@
  */
 void init_graphics(Screen *scrn)
 {
+    setlocale(LC_ALL, "");
     initscr();
     noecho();
     getmaxyx(stdscr, scrn->y, scrn->x);
@@ -201,17 +202,19 @@ void update_bars(Board board, Bar lf, Bar tm)
     int lcs_2 = lcs_1 + calwidth(board.screen_x, 3, 0);
     int lcs_3 = lcs_2 + calwidth(board.screen_x, 3, 1);
     int lce_3 = lcs_3 + calwidth(board.screen_x, 3, 2);
-    char str[30];
-    sprintf(str, "Remaining Health: (%i) <3", board.lifes_left);
-    update_bar(location_pos, lcs_3 + 1, lce_3 - 2, (int)lf.percent_full, str);
-    sprintf(str, "Time Left: %i second/s", board.time_left);
+    char str[64];
+    char *format = format_lives_numeric(&board);
+    sprintf(str, "Remaining Health: %s", format);
+    update_bar(location_pos, lcs_3 + 1, lce_3 - 1, (int)lf.percent_full, str);
+    free(format);
+    format = format_clock_numeric(&board);
+    sprintf(str, "Time Left: %s", format);
+    free(format);
     update_bar(location_pos, lcs_1 + 1, lcs_2 - 1, (int)tm.percent_full, str);
 }
 
-void update_graphics(Board *board)
+void update_graphics(Board *board, Bar lf, Bar tm)
 {
-    Bar lf = {.percent_full = (float)board->lifes_left / board->lifes_on_start * 100};
-    Bar tm = {.percent_full = (float)board->time_left / board->max_time * 100};
     update_bars(*board, lf, tm);
     display_board(board);
     refresh();
