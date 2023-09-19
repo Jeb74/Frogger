@@ -73,7 +73,12 @@ int get_direction_value(Direction direction)
     }
 }
 
-LOWCOST_INFO getAction(int argc, char *argv[])
+/**
+ * Considera gli argomenti del programma.
+ * @param argc  Il numero di argomenti.
+ * @param argv  Gli argomenti.
+*/
+LOWCOST_INFO get_action(int argc, char *argv[])
 {
     LOWCOST_INFO rslt = 0;
 
@@ -301,7 +306,7 @@ char **format_number(int number, char empty, char fill)
  * @param num   Il numero.
  * @param size  La dimensione della stringa.
  * @param fill  Se riempire la stringa con zeri.
-*/
+ */
 char *num_to_string(int num, unsigned int size, bool fill)
 {
     int dim = 0;
@@ -343,13 +348,13 @@ char *num_to_string(int num, unsigned int size, bool fill)
  * Sfrutta dei placeholder e dei varargs per creare una stringa.
  * @param format    Il formato della stringa (con placeholders).
  * @param ...       I varargs.
-*/
+ */
 char *build_string(const char *__restrict_arr format, ...)
 {
     int slen = strlen(format);
     int count = 0;
     char **elements = CALLOC(char *, 30);
-    
+
     va_list args;
     va_start(args, format);
 

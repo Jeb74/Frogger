@@ -140,7 +140,6 @@ typedef struct
 typedef struct
 {
     Board *board;
-    Entity *entity;
 } GameArgs;
 
 typedef struct

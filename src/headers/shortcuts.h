@@ -34,7 +34,7 @@
 #define LAMBDA_FREE_PTR(ptr, func) \
     {                              \
         func                       \
-            free(ptr);             \
+        free(ptr);                 \
     }
 
 #define LAMBDA_PTR(type, size, ptr, func) \
@@ -58,7 +58,7 @@
     }                                 \
     free(ptrs)
 
-LOWCOST_INFO getAction(int argc, char *argv[]);
+LOWCOST_INFO get_action(int argc, char *argv[]);
 unsigned int calwidth(unsigned int width, unsigned int panels, LOWCOST_INFO indx);
 
 char get_entity_symbol(EntityTypes type);

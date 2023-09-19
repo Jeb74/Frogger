@@ -6,7 +6,10 @@
  */
 void *manage_frog(void *arg)
 {
-    GameArgs *args = (GameArgs *)arg;
+    ExecutionMode exm = get_exm();
+
+    GameArgs *args;
+    unpack(arg, args, exm, GAMEPKG);
 
     Direction direction;
 
@@ -14,24 +17,33 @@ void *manage_frog(void *arg)
     {
         switch (getch())
         {
-        case KEY_LEFT:
-            direction = LEFT;
-            break;
-        case KEY_RIGHT:
-            direction = RIGHT;
-            break;
-        case KEY_UP:
-            direction = UP;
-            break;
-        case KEY_DOWN:
-            direction = DOWN;
-            break;
-        default:
-            continue;
+            case KEY_LEFT:
+                direction = LEFT;
+                break;
+            case KEY_RIGHT:
+                direction = RIGHT;
+                break;
+            case KEY_UP:
+                direction = UP;
+                break;
+            case KEY_DOWN:
+                direction = DOWN;
+                break;
+            default:
+                continue;
+        }
+
+        if (exm == PROCESS)
+        {
+            // TODO - Mandare i pacchetti di movimento via pipe.
+        }
+        else
+        {
+            // TODO - Mandare i pacchetti di movimento via thread.
         }
 
         /*
-        TODO - Mandare i pacchetti di movimento.
+        TODO
             -> collisioni
             -> print screen
         */

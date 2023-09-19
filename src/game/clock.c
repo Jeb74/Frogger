@@ -9,7 +9,7 @@ void *manage_clock(void *arg)
     ExecutionMode exm = get_exm();
 
     GameArgs *args;
-    unpack(arg, args, get_exm(), GAMEPKG);
+    unpack(arg, args, exm, GAMEPKG);
 
     Board *board = args->board;
     board->time_left = board->max_time;
@@ -35,7 +35,8 @@ void *manage_clock(void *arg)
  * @param board La tabella di gioco.
  * @return      Il timer formattato (NECESSITA DI FREE DOPO L'USE).
  */
-char *format_clock_numeric(Board *board) {
+char *format_clock_numeric(Board *board) 
+{
     int time_left = board->time_left;
 
     char* minutes = num_to_string((int)(time_left / 60), 2, true);
