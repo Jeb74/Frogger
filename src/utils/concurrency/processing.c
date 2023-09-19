@@ -214,7 +214,7 @@ LOWCOST_INFO process_mode_exec(Screen screen)
     }
     else if (ptime == 0) 
     {
-        time_process(findpn(2, arr, "writetime"), findpn(2, arr, "readtime"));
+        manage_clock(pack(get_exm(), GENPKG, arr));
     }
     else 
     {

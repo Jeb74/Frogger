@@ -42,7 +42,7 @@ void a_testing()
 {
     Board board = {
         .max_time = 300,
-        .time_left = 0,
+        .time_left = 300,
         .is_game_won = false,
         .lifes_on_start = 43,
         .lifes_left = 43,
@@ -53,14 +53,10 @@ void a_testing()
     // init_graphics(&board);
     // display_board(&board);
 
-    GameArgs game = {
-        .board = &board,
-        .entity = NULL};
-
-    Package *pkg = pack(THREAD, GAMEPKG, &game);
+    Package *pkg = pack(THREAD, GENPKG, &(board.time_left));
 
     pthread_t clock_thread;
-    create_thread(&clock_thread, manage_clock, pkg);
+    create_thread(&clock_thread, &manage_clock, pkg);
 
     SLEEP_SECONDS(2);
 
@@ -98,6 +94,6 @@ void a_testing()
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
-    m_testing(argc, argv);
+    a_testing();
     return 0;
 }

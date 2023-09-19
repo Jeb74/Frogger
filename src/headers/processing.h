@@ -28,5 +28,12 @@ typedef struct {
 } pipe_t;
 
 LOWCOST_INFO process_mode_exec(Screen screen);
+bool writeifready(void *buff, pipe_t _pipe, size_t size);
+bool readifready(void *buff, pipe_t _pipe, size_t size);
+void writeto(void *buff, pipe_t _pipe, size_t size);
+void readfrm(void *buff, pipe_t _pipe, size_t size);
+pipe_t *create_pipes(int size, ...);
+pipe_t create_pipe(char name[PIPE_NAME]);
+pipe_t findpn(int len, pipe_t pipes[], char name[PIPE_NAME]);
 
 #endif
