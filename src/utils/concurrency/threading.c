@@ -69,9 +69,8 @@ void kill_mutex()
     pthread_mutex_destroy(&MUTEX);
 }
 
-
-
-LOWCOST_INFO thread_mode_exec(Screen screen) {
+LOWCOST_INFO thread_mode_exec(Screen screen) 
+{
     erase();
     Board board;
     INIT_BOARD(board, screen);

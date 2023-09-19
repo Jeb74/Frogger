@@ -181,6 +181,7 @@ void update_bar(int y, int start, int end, int pc, char title[])
     mvaddstr(y - 1, start, title);
     int pair = pc > 75 ? HP_FULL_SLOT : pc > 25 ? HP_PARTIAL_SLOT
                                                 : HP_EMPTY_SLOT;
+
     for (int i = 0, once = true; i < end; i++)
     {
         if (i > (float)end / 100 * pc && once)

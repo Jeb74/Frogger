@@ -33,7 +33,8 @@ add_executable(frogger
                 src/headers/graphics.h
                 src/game/graphics/graphics.c
 
-                src/headers/data.h)
+                src/headers/data.h
+                src/utils/data.c)
 
 # utile per aggiungere math.h#pow() anche su gcc linux
 target_link_libraries(frogger PRIVATE m pthread ncursesw)

@@ -10,7 +10,7 @@ void func(void *args)
 void m_testing(int argc, char *argv[])
 {
     Screen screen;
-    
+
     init_graphics(&screen);
     LOWCOST_INFO result = -1;
     do
@@ -27,6 +27,8 @@ void m_testing(int argc, char *argv[])
         }
         else
             screen.exm = result;
+
+        set_exm(screen.exm);
         
         if (screen.exm == 0)
             thread_mode_exec(screen);

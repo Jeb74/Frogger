@@ -54,4 +54,9 @@ static const char *SCORES[] = {
         SCORE_9
 };
 
+static ExecutionMode exm;
+
+void set_exm(ExecutionMode exm);
+ExecutionMode get_exm();
+
 #endif //FROGGER_DATA_H

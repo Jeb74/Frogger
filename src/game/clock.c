@@ -6,17 +6,27 @@
  */
 void *manage_clock(void *arg)
 {
+    ExecutionMode exm = get_exm();
+
     GameArgs *args;
-    unpack(arg, args, THREAD, GAMEPKG);
+    unpack(arg, args, get_exm(), GAMEPKG);
 
     Board *board = args->board;
-
     board->time_left = board->max_time;
 
     while (true)
     {
         SLEEP_SECONDS(CLOCK_HIT_EVERY);
         board->time_left -= board->time_left > 0 ? CLOCK_HIT_EVERY : 0;
+
+        if (exm == PROCESS)
+        {
+            // TODO - Mandare i pacchetti di time via pipe.
+        }
+        else
+        {
+            // TODO - Mandare i pacchetti di time via thread.
+        }
     }
 }
 
@@ -28,8 +38,8 @@ void *manage_clock(void *arg)
 char *format_clock_numeric(Board *board) {
     int time_left = board->time_left;
 
-    char* minutes = numToString((int)(time_left / 60), 2, true);
-    char* seconds = numToString((int)(time_left % 60), 2, true);
+    char* minutes = num_to_string((int)(time_left / 60), 2, true);
+    char* seconds = num_to_string((int)(time_left % 60), 2, true);
 
     char *clock_fmt = build_string("%s:%s", minutes, seconds);
     free(minutes);

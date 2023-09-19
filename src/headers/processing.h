@@ -5,7 +5,7 @@
 
 #define READ 0
 #define WRITE 1
-static struct timeval  tv = {.tv_sec = 0, .tv_usec = 50};
+static struct timeval tv = {.tv_sec = 0, .tv_usec = 50};
 #define ACCEPTABLE_WAITING_TIME &tv
 
 #define STRINGIFY(x) #x

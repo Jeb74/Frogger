@@ -128,6 +128,8 @@ typedef enum
     PROCESS
 } ExecutionMode;
 
+typedef ExecutionMode RequestType;
+
 typedef struct
 {
     unsigned int y;
@@ -151,8 +153,6 @@ typedef struct
     double percent_full;
     double percent_empty;
 } Bar;
-
-typedef ExecutionMode RequestType;
 
 typedef enum
 {
