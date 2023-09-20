@@ -12,5 +12,6 @@
 
 char *format_lives_numeric(Board *board);
 char *format_lives_bar(Board *board);
+void *manage_frog(void *args);
 
 #endif // FROGGER_FROG_H

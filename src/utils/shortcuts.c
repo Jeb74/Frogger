@@ -53,12 +53,12 @@ char get_entity_symbol(EntityTypes type)
 
 /**
  * Prende il valore della direzione.
- * @param direction La direzione.
+ * @param action La direzione.
  * @return          Il valore della direzione.
  */
-int get_direction_value(Direction direction)
+int get_action_value(Action action)
 {
-    switch (direction)
+    switch (action)
     {
     case LEFT:
         return -1;
@@ -233,8 +233,7 @@ void calculate_bar(Bar *bar, int max, int current)
 {
     double percentage = calculate_percentage(current, max);
 
-    bar->percent_full = percentage;
-    bar->percent_empty = 100 - percentage;
+    bar->value = percentage;
 }
 
 /**
@@ -258,93 +257,6 @@ void calculate_time_bar(Bar *bar, Board *board)
 }
 
 /**
- * Formatta i numeri del punteggio.
- * @param number    Il numero.
- * @param empty     Il carattere vuoto.
- * @param fill      Il carattere pieno.
- */
-char **format_number(int number, char empty, char fill)
-{
-    if (number < 0 || number > 9)
-    {
-        return NULL;
-    }
-
-    size_t height = 0, width = 0;
-
-    char **result = MALLOC(char *, SCORE_HEIGHT);
-    CRASH_IF_NULL(result);
-
-    result[height] = CALLOC_TERM(char, SCORE_WIDTH);
-    CRASH_IF_NULL(result[height]);
-
-    for (size_t i = 0; i < SCORE_LENGTH; i++)
-    {
-        char c = SCORES[number][i];
-
-        if (c == NULL_CHAR)
-        {
-            ++height;
-            width = 0;
-
-            result[height] = CALLOC_TERM(char, SCORE_WIDTH);
-            CRASH_IF_NULL(result[height]);
-        }
-        else
-        {
-            result[height][width] = c == EMPTY_CHAR ? empty : c == FILL_CHAR ? fill
-                                                                             : c;
-            ++width;
-        }
-    }
-
-    return result;
-}
-
-/**
- * Converte un numero in una stringa.
- * @param num   Il numero.
- * @param size  La dimensione della stringa.
- * @param fill  Se riempire la stringa con zeri.
- */
-char *num_to_string(int num, unsigned int size, bool fill)
-{
-    int dim = 0;
-    size = size > 0 ? size : 11;
-
-    char *numb = CALLOC(char, size);
-    numb[0] = '0';
-
-    while (num != 0 || fill)
-    {
-        /* Sposta indietro la cifra. */
-        for (int i = dim; dim != 0 && i > -1; i--)
-        {
-            numb[i] = numb[i - 1];
-        }
-
-        dim++;
-        numb[0] = (num % 10) + '0';
-
-        if (num > 0)
-        {
-            num /= 10;
-        }
-
-        if (strlen(numb) == size && fill)
-        {
-            fill = !fill;
-        }
-    }
-
-    size = strlen(numb);
-    numb = REALLOC(char, numb, size + TERM);
-    numb[size] = '\0';
-
-    return numb;
-}
-
-/**
  * Sfrutta dei placeholder e dei varargs per creare una stringa.
  * @param format    Il formato della stringa (con placeholders).
  * @param ...       I varargs.
@@ -353,19 +265,22 @@ char *build_string(const char *__restrict_arr format, ...)
 {
     int slen = strlen(format);
     int count = 0;
-    char **elements = CALLOC(char *, 30);
+    char **elements = CALLOC(char *, count + 1);
 
     va_list args;
     va_start(args, format);
 
-    for (int i = 0; i < slen; i++)
+    for (int i = 0, z = slen; i < z; i++)
     {
         if (format[i] == '%' && format[i + 1] == 's')
         {
-            elements[count] = va_arg(args, char *);
-            slen += strlen(elements[count]);
-            count++;
-        }
+            char *str = (char*) va_arg(args, char *);
+            elements[count] = str;
+            slen += strlen(str);
+            
+	        ++count;
+            elements = (char**) realloc(elements, sizeof(char*) * count + 1);
+	}
     }
 
     char *output = CALLOC(char, slen + TERM);
@@ -391,7 +306,78 @@ char *build_string(const char *__restrict_arr format, ...)
 
     int ol = strlen(output);
     output = REALLOC(char, output, ol + TERM);
-    output[ol] = 0;
-
+    output[ol] = '\0';
+    va_end(args);
     return output;
+}
+
+/**
+ * Formatta i numeri del punteggio.
+ * @param number    Il numero.
+ * @param empty     Il carattere vuoto.
+ * @param fill      Il carattere pieno.
+ */
+char **format_number(int number, char empty[], char fill[])
+{
+    if (number < 0 || number > 9)
+    {
+        return NULL;
+    }
+
+    size_t height = 0;
+    int size_of_char = strlen(fill);
+    int size_of_echar = strlen(empty);
+    char **result = MALLOC(char *, SCORE_HEIGHT);
+    CRASH_IF_NULL(result);
+
+    for (size_t i = 0; i < SCORE_LENGTH;)
+    {
+        char c[SCORE_WIDTH] = {SCORES[number][i], SCORES[number][i+1], SCORES[number][i+2]};
+        result[height] = build_string("%s%s%s", c[0] == EMPTY_CHAR ? empty : fill, c[1] == EMPTY_CHAR ? empty : fill, c[2] == EMPTY_CHAR ? empty : fill);
+        height++;
+        i += 4;
+    }
+
+    return result;
+}
+
+/**
+ * Converte un numero in una stringa.
+ * @param num   Il numero.
+ * @param size  La dimensione della stringa.
+ * @param fill  Se riempire la stringa con zeri.
+ */
+char *num_to_string(int num, int size)
+{
+    bool fill = size > 0;
+    size = fill ? size : count_digits(num);
+
+    char *numb = (char*) calloc(size + 1, sizeof(char));
+    numb[size] = '\0';
+    numb[0] = '0';
+    int ts = 0;
+    while (num != 0 || fill)
+    {   
+        /* Sposta indietro la cifra. */
+        for (int i = ts; ts != 0 && i > 0; i--)
+        {
+            numb[i] = numb[i - 1];
+        }
+
+        numb[0] = (num % 10) + '0';
+
+        if (num > 0)
+        {
+            num /= 10;
+        }
+
+        fill = fill ? ts != size-1 : false;
+        ts++;
+    }
+
+    size = strlen(numb);
+    numb = REALLOC(char, numb, size + TERM);
+    numb[size] = '\0';
+
+    return numb;
 }

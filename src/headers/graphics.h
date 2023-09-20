@@ -55,6 +55,10 @@
 #define HP_PARTIAL_SLOT 8
 #define HP_EMPTY_SLOT 9
 
+#define SCORE_C 10
+
+#define FROG 11
+
 #define INIT_COLORS                                         \
 {                                                           \
     init_pair(RESET_COLOR, COLOR_BLACK, COLOR_BLACK);       \
@@ -68,12 +72,15 @@
     init_pair(HP_FULL_SLOT, COLOR_WHITE, COLOR_GREEN);      \
     init_pair(HP_PARTIAL_SLOT, COLOR_WHITE, COLOR_YELLOW);  \
     init_pair(HP_EMPTY_SLOT, COLOR_WHITE, COLOR_RED);       \
+    init_pair(SCORE_C, COLOR_YELLOW, COLOR_BLACK);          \
+                                                            \
+    init_pair(FROG, COLOR_GREEN, COLOR_BLACK);              \
 }
 
 void init_graphics(Screen *scrn);
 void center_string(char str[], int max);
 
 LOWCOST_INFO initial_menu(int max, int may);
-void update_graphics(Board *board, Bar lf, Bar tm);
+void update_graphics(Board *board, Bar lf, Bar tm, Bar sc);
 
 #endif

@@ -4,7 +4,7 @@
  * Gestisce il timer del gioco.
  * @param arg   Gli argomenti del thread.
  */
-void manage_clock(void *args)
+void *manage_clock(void *args)
 {
     ExecutionMode exm = get_exm();
     bool process_mode = exm == PROCESS;
@@ -54,8 +54,8 @@ char *format_clock_numeric(Board *board)
 {
     int time_left = board->time_left;
 
-    char* minutes = num_to_string((int)(time_left / 60), 2, true);
-    char* seconds = num_to_string((int)(time_left % 60), 2, true);
+    char* minutes = num_to_string((int)(time_left / 60), 2);
+    char* seconds = num_to_string((int)(time_left % 60), 2);
 
     char *clock_fmt = build_string("%s:%s", minutes, seconds);
     free(minutes);

@@ -150,7 +150,7 @@ void display_board(Board *board)
     int terminating_y = board->low_y;
     int width = board->screen_x;
 
-    for (int i = 0; i < SIDEWALK; i++)
+    for (int i = 0, k = 0; i < SIDEWALK && starting_y + k < terminating_y; i++)
     {
         int x = -1;
 
@@ -166,13 +166,24 @@ void display_board(Board *board)
             x = SIDEWALK_C;
 
         attron(COLOR_PAIR(x));
-        for (int j = 0, s = starting_y + i * 2; j < width; j++)
+        for (int j = 0, s = starting_y + k; j < width; j++)
         {
             mvaddch(s, j, ' ');
             mvaddch(s + 1, j, ' ');
         }
         attroff(COLOR_PAIR(x));
+        k += 2;
     }
+    Position *pos = &(board->fp);
+    //printf("%i - %i\n", terminating_y, pos->y);
+    if (pos->x < 0) pos->x = 0;
+    else if ((pos->x + 1) > width-1) pos->x = width - 2;
+    if (pos->y < board->top_y + 2) pos->y = board->top_y + 2;
+    else if (pos->y >= board->low_y) pos->y = board->low_y - 1;
+    attron(COLOR_PAIR(FROG));
+    mvaddch(pos->y, pos->x, 'o'),mvaddch(pos->y, pos->x + 1, 'o');
+    mvaddch(pos->y + 1, pos->x, '('),mvaddch(pos->y + 1, pos->x + 1, ')');
+    attroff(COLOR_PAIR(FROG));
 }
 
 void update_bar(int y, int start, int end, int pc, char title[])
@@ -196,27 +207,69 @@ void update_bar(int y, int start, int end, int pc, char title[])
     }
 }
 
-void update_bars(Board board, Bar lf, Bar tm)
+void update_score_bar_empty(int y, int *start, int leftovers) {
+    attron(COLOR_PAIR(RESET_COLOR));
+    for (int i = 0;  i < leftovers; i++) {
+        for (int j = 0; j < SCORE_HEIGHT; j++) {
+            mvaddch(y+j, start+i, ' ');
+        }
+    }
+    *start += leftovers;
+    attroff(COLOR_PAIR(RESET_COLOR));
+}
+
+void update_score_bar(int y, int start, int end, int value, char title[]) {
+    char *numb = num_to_string(value, 3);
+    char **fdigit = format_number(numb[0] - '0', " ", "\xE2\x96\xAE");
+    char **sdigit = format_number(numb[1] - '0', " ", "\xE2\x96\xAE");
+    char **tdigit = format_number(numb[2] - '0', " ", "\xE2\x96\xAE");
+    free(numb);
+    int occ_len = SCORE_WIDTH*SCORE_WIDTH + 2;
+    mvaddstr(y-1, start, title);
+    int leftovers = (int)(((end - start) - occ_len) / 2);
+    update_score_bar_empty(y, &start, leftovers);
+    attron(COLOR_PAIR(SCORE_C));
+    char *fmtd;
+    for (int i = 0; i < SCORE_HEIGHT; i++) {
+        fmtd = build_string("%s %s %s", fdigit[i], sdigit[i], tdigit[i]);
+        mvaddstr(y+i, start, fmtd);
+        free(fmtd);
+    }
+    attroff(COLOR_PAIR(SCORE_C));
+    start+=occ_len;
+    update_score_bar_empty(y, &start, leftovers);
+    FREE_ALL(fdigit, SCORE_HEIGHT);
+    FREE_ALL(sdigit, SCORE_HEIGHT);
+    FREE_ALL(tdigit, SCORE_HEIGHT);
+}
+
+void update_bars(Board board, Bar lf, Bar tm, Bar sc)
 {
     int location_pos = board.top_y / 2 - 1;
     int lcs_1 = 0;
     int lcs_2 = lcs_1 + calwidth(board.screen_x, 3, 0);
     int lcs_3 = lcs_2 + calwidth(board.screen_x, 3, 1);
     int lce_3 = lcs_3 + calwidth(board.screen_x, 3, 2);
-    char str[64];
+    char *str;
     char *format = format_lives_numeric(&board);
-    sprintf(str, "Remaining Health: %s", format);
-    update_bar(location_pos, lcs_3 + 1, lce_3 - 1, (int)lf.percent_full, str);
+    
+    str = build_string("Remaining Health: %s", format);
+    update_bar(location_pos, lcs_3 + 1, lce_3 - 1, (int)lf.value, str);
     free(format);
+    free(str);
+
     format = format_clock_numeric(&board);
-    sprintf(str, "Time Left: %s", format);
+    str = build_string("Time Left: %s", format);
+    update_bar(location_pos, lcs_1 + 1, lcs_2 - 1, (int)tm.value, str);
     free(format);
-    update_bar(location_pos, lcs_1 + 1, lcs_2 - 1, (int)tm.percent_full, str);
+    free(str);
+    location_pos = location_pos >= 2 ? location_pos - 2 : location_pos;
+    update_score_bar(location_pos, lcs_2 + 1, lcs_3 - 1, (int)(sc.value), "Score:");
 }
 
-void update_graphics(Board *board, Bar lf, Bar tm)
+void update_graphics(Board *board, Bar lf, Bar tm, Bar sc)
 {
-    update_bars(*board, lf, tm);
+    update_bars(*board, lf, tm, sc);
     display_board(board);
     refresh();
 }

@@ -13,7 +13,7 @@
 
 #define TIME_LEFT_CHAR '|'
 
-void manage_clock(void *arg);
+void *manage_clock(void *arg);
 char *format_clock_numeric(Board *board);
 char *format_clock_bar(Board *board);
 

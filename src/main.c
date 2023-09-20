@@ -32,68 +32,23 @@ void m_testing(int argc, char *argv[])
 
         if (screen.exm == 0)
             thread_mode_exec(screen);
-        else if (screen.exm == 1)
+        else if (screen.exm == 1) {
+            printf("%s\n", "YOOOOOOOOO");
             process_mode_exec(screen);
+        }
 
     } while (result != 2);
 }
 
 void a_testing()
 {
-    Board board = {
-        .max_time = 300,
-        .time_left = 300,
-        .is_game_won = false,
-        .lifes_on_start = 43,
-        .lifes_left = 43,
-        .points = 0,
-        // ho cambiato la struct board per renderla più coerente col suo impiego.
-    };
-
-    // init_graphics(&board);
-    // display_board(&board);
-
-    Package *pkg = pack(THREAD, GENPKG, &(board.time_left));
-
-    pthread_t clock_thread;
-    create_thread(&clock_thread, &manage_clock, pkg);
-
-    SLEEP_SECONDS(2);
-
-    /* test format_number */
-    for (size_t d = 0; d < 10; d++)
-    {
-        char **scores = format_number(d, ' ', '@');
-
-        for (size_t i = 0; i < SCORE_HEIGHT; i++)
-        {
-            printf("%s\n", scores[i]);
-        }
-
-        FREE_ALL(scores, SCORE_HEIGHT);
-
-        printf("\n");
-    }
-
-    /* test format_clock_numeric */
-    char *clock = format_clock_numeric(&board);
-    printf("%s\n", clock);
-    free(clock);
-
-    /* test format_clock_bar */
-    clock = format_clock_bar(&board);
-    printf("%s\n", clock);
-
-    free(clock);
-
-    // getch();
-    // endwin();
-    free(pkg);
+    ;
 }
 
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
-    a_testing();
+    m_testing(argc, argv);
+
     return 0;
 }

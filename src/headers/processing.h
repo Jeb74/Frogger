@@ -27,6 +27,12 @@ typedef struct {
     char *name;
 } pipe_t;
 
+typedef struct {
+    pid_t pid;
+    char *name;
+    LOWCOST_INFO status;
+} Process;
+
 LOWCOST_INFO process_mode_exec(Screen screen);
 bool writeifready(void *buff, pipe_t _pipe, size_t size);
 bool readifready(void *buff, pipe_t _pipe, size_t size);
