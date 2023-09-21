@@ -12,6 +12,7 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/select.h>
+#include <sys/time.h>
 
 #ifndef FROGGER_STRUCTURES_H
 #define FROGGER_STRUCTURES_H
@@ -61,33 +62,25 @@ typedef struct
 
 typedef struct
 {
-    int x;
-    int y;
-} Velocity;
-
-typedef struct
-{
-    int x;
-    int y;
-} Size;
-
-typedef struct
-{
+    unsigned char id;
     EntityTypes type;
-    long long *id;
 
     Position position;
     Action action;
-    Velocity velocity;
 
-    Size size;
+    unsigned int length;
 } Entity;
+
+struct _equeue {
+    struct _equeue *next;
+    Entity e;
+};
+
 
 typedef struct
 {
     Position position;
     bool used;
-    Size size;
 } Hideout;
 
 typedef struct
@@ -152,7 +145,7 @@ typedef struct
 
 typedef struct
 {
-    double value;
+    int value;
 } Bar;
 
 typedef enum
@@ -187,6 +180,8 @@ typedef struct
         buffer = (*pkg).arg.garg
 
 Package *pack(RequestType rqtype, ContentType cntype, void *arg);
+
+#define STD_ENTITIES 15
 
 #include "shortcuts.h"
 #include "threading.h"

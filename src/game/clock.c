@@ -13,13 +13,15 @@ void *manage_clock(void *args)
 
     unpack(args, data, exm, GENPKG);
 
-    pipe_t w, r;
+    pipe_t w, r, s;
     unsigned int *time;
     if (process_mode) {
-        w = findpn(2, data, "readtime");
-        r = findpn(2, data, "writetime");
+        w = findpn(PAS, data, "readtime");
+        r = findpn(PAS, data, "writetime");
+        s = findpn(PAS, data, "readysignal");
         CLOSE_READ(w);
         CLOSE_WRITE(r);
+        CLOSE_READ(s);
         time = CALLOC(unsigned int, 1);
         readfrm(time, r, sizeof(unsigned int));
     }
@@ -32,9 +34,10 @@ void *manage_clock(void *args)
 
         if (process_mode)
         {
-            LOWCOST_INFO info;
+            LOWCOST_INFO info = true;
             if (readifready(&info, r, sizeof(LOWCOST_INFO))) exit(EXIT_SUCCESS);
             writeto(time, w, sizeof(unsigned int));
+            writeto(&info, s, sizeof(bool));
         }
     }
     if (process_mode) {

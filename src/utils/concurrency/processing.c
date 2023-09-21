@@ -32,7 +32,7 @@ pipe_t create_pipe(char name[PIPE_NAME])
 
     HANDLE_ERROR(pipe(p.accesses) + 1);
 
-    int len = strlen(p.name);
+    int len = strlen(name);
 
     p.name = REALLOC(char, p.name, len + TERM);
     p.name[len] = '\0';
@@ -194,6 +194,14 @@ bool fetch_frog(pipe_t r, Position *fp) {
     return false;
 }
 
+void generate_entity(char name[PIPE_NAME]) {
+
+}
+
+void generate_entities(unsigned int en, Process **e, pipe_t **p) {
+
+}
+
 /**
  * Esecutore modalità processi.
  * @param screen    Lo screen.
@@ -202,47 +210,46 @@ bool fetch_frog(pipe_t r, Position *fp) {
 LOWCOST_INFO process_mode_exec(Screen screen) 
 {
     erase();
+    refresh();
     Board board;
     INIT_COLORS;
     INIT_BOARD(board, screen);
-    endwin();
 
     // Processing for real
-    pipe_t *arr = create_pipes(4, "writetime", "readtime", "writeaction", "readaction");
+    pipe_t *arr = create_pipes(PAS, "writetime", "readtime", "writeaction", "readaction", "readysignal");
 
     Process time = palloc("time", manage_clock, pack(screen.exm, GENPKG, arr));
     if (time.status < 0) return 2;
     Process frog = palloc("frog", manage_frog, pack(screen.exm, GENPKG, arr));
     if (frog.status < 0) return 2;
+
     // Logic
-    pipe_t wt = findpn(4, arr, "writetime");
-    pipe_t rt = findpn(4, arr, "readtime");
-    pipe_t wa = findpn(4, arr, "writeaction");
-    pipe_t ra = findpn(4, arr, "readaction");
+    pipe_t wt = findpn(PAS, arr, "writetime");
+    pipe_t rt = findpn(PAS, arr, "readtime");
+    pipe_t wa = findpn(PAS, arr, "writeaction");
+    pipe_t ra = findpn(PAS, arr, "readaction");
+    pipe_t rs = findpn(PAS, arr, "readysignal");
     CLOSE_READ(wt);
     CLOSE_WRITE(rt);
     CLOSE_READ(wa);
     CLOSE_WRITE(ra);
+    CLOSE_WRITE(rs);
 
     writeto(&(board.max_time), wt, sizeof(unsigned int));
 
-    // Game
-    Bar lf = create_life_bar(&board);
-    Bar tm = create_time_bar(&board);
-    Bar sc = {.value = 707};
+    //Process *entities;
+    //pipe_t *pipes;
+    //generate_entities(STD_ENTITIES, &entities, &pipes);
 
-    int x = 0,y = 0;
-    while(1)
-    {
+    bool signal = false;
+    do {
+        EntityQueue queue = fetch_entities(&pipes);
         fetch_frog(ra, &(board.fp));
         fetch_time(rt, &(board.time_left));
-        sc.value = board.time_left;
-        calculate_life_bar(&lf, &board);
-        calculate_time_bar(&tm, &board);
-        update_graphics(&board, lf, tm, sc);
-        
-        if (board.time_left == 0) break;
+        update_graphics(&board, queue);
+        readfrm(&signal, rs, sizeof(bool));
     }
+    while(signal);
     return 2;
 }
 

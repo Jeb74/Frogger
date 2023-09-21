@@ -1,12 +1,5 @@
 #include "headers/structures.h"
 
-void func(void *args)
-{
-    GameArgs *game;
-    unpack(args, game, THREAD, GAMEPKG);
-    printf("%i\n", (*game).board->lifes_left);
-}
-
 void m_testing(int argc, char *argv[])
 {
     Screen screen;
@@ -33,7 +26,6 @@ void m_testing(int argc, char *argv[])
         if (screen.exm == 0)
             thread_mode_exec(screen);
         else if (screen.exm == 1) {
-            printf("%s\n", "YOOOOOOOOO");
             process_mode_exec(screen);
         }
 
@@ -49,6 +41,6 @@ int main(int argc, char *argv[])
 {
     srand(time(NULL));
     m_testing(argc, argv);
-
+    //printf("%s\n", num_to_string(0, 3));
     return 0;
 }

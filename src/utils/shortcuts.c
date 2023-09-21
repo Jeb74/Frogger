@@ -193,7 +193,7 @@ double calculate_percentage(int dividend, int divisor)
  * @param current   Il valore corrente.
  * @return          La barra.
  */
-Bar create_bar(Board *board, int max, int current)
+Bar create_bar(int max, int current)
 {
     Bar bar;
     calculate_bar(&bar, max, current);
@@ -209,7 +209,7 @@ Bar create_bar(Board *board, int max, int current)
  */
 Bar create_life_bar(Board *board)
 {
-    return create_bar(board, board->lifes_on_start, board->lifes_left);
+    return create_bar(board->lifes_on_start, board->lifes_left);
 }
 
 /**
@@ -220,7 +220,7 @@ Bar create_life_bar(Board *board)
  */
 Bar create_time_bar(Board *board)
 {
-    return create_bar(board, board->max_time, board->time_left);
+    return create_bar(board->max_time, board->time_left);
 }
 
 /**
@@ -231,7 +231,7 @@ Bar create_time_bar(Board *board)
  */
 void calculate_bar(Bar *bar, int max, int current)
 {
-    double percentage = calculate_percentage(current, max);
+    int percentage = (int)calculate_percentage(current, max);
 
     bar->value = percentage;
 }

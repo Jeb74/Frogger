@@ -17,7 +17,10 @@
 #define EMPTY_CHAR '0'
 #define FILL_CHAR '1'
 
+#define SLEEP_MICROS(quantity) usleep(quantity)
+
 #define SLEEP_MILLIS(quantity) usleep(quantity * 1000)
+
 #define SLEEP_SECONDS(quantity) SLEEP_MILLIS(quantity * 1000)
 
 /*
@@ -67,7 +70,7 @@ void end_game(Board *board);
 int count_digits(int value);
 int divide_if_possible(int dividend, int divisor);
 
-Bar create_bar(Board *board, int max, int current);
+Bar create_bar(int max, int current);
 Bar create_life_bar(Board *board);
 Bar create_time_bar(Board *board);
 

@@ -13,14 +13,18 @@ void *manage_frog(void *args)
     unpack(args, data, exm, GENPKG);
 
     Action action = NONE;
-    pipe_t w, r;
+    pipe_t w, r, s;
     if (process_mode) {
-        w = findpn(4, data, "readaction");
-        r = findpn(4, data, "writeaction");
+        w = findpn(PAS, data, "readaction");
+        r = findpn(PAS, data, "writeaction");
+        s = findpn(PAS, data, "readysignal");
         CLOSE_READ(w);
         CLOSE_WRITE(r);
+        CLOSE_READ(s);
     }
 
+    struct timeval st, ct;
+    gettimeofday(&st, NULL);
     while (true)
     {
         switch (wgetch(stdscr))
@@ -52,7 +56,12 @@ void *manage_frog(void *args)
         {
             LOWCOST_INFO info;
             if (readifready(&info, r, sizeof(LOWCOST_INFO))) exit(EXIT_SUCCESS);
-            writeto(&action, w, sizeof(Action));
+            gettimeofday(&ct, NULL);
+            if ((ct.tv_usec - st.tv_usec) >= 100000 || (ct.tv_sec - st.tv_sec) >= 1) {
+                writeto(&action, w, sizeof(Action));
+                writeto(&info, s, sizeof(bool));
+                st = ct;
+            }
         }
         else
         {

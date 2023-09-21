@@ -77,10 +77,12 @@
     init_pair(FROG, COLOR_GREEN, COLOR_BLACK);              \
 }
 
+#define INFO_BARS 3
+
 void init_graphics(Screen *scrn);
 void center_string(char str[], int max);
 
 LOWCOST_INFO initial_menu(int max, int may);
-void update_graphics(Board *board, Bar lf, Bar tm, Bar sc);
+void update_graphics(Board *board);
 
 #endif

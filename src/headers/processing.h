@@ -21,6 +21,8 @@ if (func <= 0) perror("[Error Handler] Something went wrong: "TOSTRING(__LINE__)
 #define PIPE_SIZE 2
 #define PIPE_NAME 32
 #define FAILED_PIPE (pipe_t){.name=NULL, .accesses={-1,-1}}
+#define PAS 5 // pipe array size
+#define MIN_PAS 2
 
 typedef struct {
     int accesses[PIPE_SIZE];
@@ -33,6 +35,8 @@ typedef struct {
     LOWCOST_INFO status;
 } Process;
 
+#define OUT_OF_TIME 100
+
 LOWCOST_INFO process_mode_exec(Screen screen);
 bool writeifready(void *buff, pipe_t _pipe, size_t size);
 bool readifready(void *buff, pipe_t _pipe, size_t size);
@@ -41,5 +45,6 @@ void readfrm(void *buff, pipe_t _pipe, size_t size);
 pipe_t *create_pipes(int size, ...);
 pipe_t create_pipe(char name[PIPE_NAME]);
 pipe_t findpn(int len, pipe_t pipes[], char name[PIPE_NAME]);
+Process palloc(char pname[PIPE_NAME], void (*_func)(void*), Package *pkg);
 
 #endif

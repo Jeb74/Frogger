@@ -267,9 +267,10 @@ void update_bars(Board board, Bar lf, Bar tm, Bar sc)
     update_score_bar(location_pos, lcs_2 + 1, lcs_3 - 1, (int)(sc.value), "Score:");
 }
 
-void update_graphics(Board *board, Bar lf, Bar tm, Bar sc)
+void update_graphics(Board *board)
 {
-    update_bars(*board, lf, tm, sc);
+    Bar sc = {.value=board->points};
+    update_bars(*board, create_life_bar(board), create_time_bar(board), sc);
     display_board(board);
     refresh();
 }
