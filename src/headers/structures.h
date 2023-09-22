@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/select.h>
 #include <sys/time.h>
+#include <semaphore.h>
 
 #ifndef FROGGER_STRUCTURES_H
 #define FROGGER_STRUCTURES_H
@@ -20,17 +21,144 @@
 // Richiede l'header una sola volta, per evitare errori di ridefinizione.
 #pragma once
 
-/*
-Shit lowcost
-*/
+#define PIPE_SIZE 2
 
-typedef unsigned char LOWCOST_INFO;
-
-static pthread_mutex_t MUTEX = PTHREAD_MUTEX_INITIALIZER;
+// Sarebbe da utilizzare in caso si abbiano kB di RAM.
+typedef char LOWCOST_INFO;
 
 /*
-Game data structures
-*/
+ * Logical data structures
+ */
+
+struct job
+{
+    struct job *next; /* Link field for linked list. */
+    size_t id;        /* Job ID */
+    void *raw_packet; /* Pointer to data */
+};
+
+struct worker_args
+{
+    struct job **job_queue;
+    pthread_mutex_t *job_queue_mutex;
+    sem_t *job_queue_count;
+};
+
+typedef enum
+{
+    THREAD,
+    PROCESS
+} ExecutionMode;
+
+typedef ExecutionMode RequestType;
+
+typedef enum
+{
+    CLOCK_PKG,
+    FROG_PKG,
+    ENTITY_PKG,
+} ContentType;
+
+typedef struct
+{
+    int accesses[PIPE_SIZE];
+    char *name;
+} pipe_t;
+
+typedef struct
+{
+    pid_t pid;
+    char *name;
+    LOWCOST_INFO status;
+} Process;
+
+struct t_clock_packet
+{
+    pthread_mutex_t *mutex;
+};
+
+struct p_clock_packet
+{
+    /* writetime, readtime, readysignal */
+    pipe_t w, r, s;
+};
+
+typedef struct
+{
+    union
+    {
+        struct t_clock_packet t;
+        struct p_clock_packet p;
+    } carriage;
+
+    unsigned int *time_left;
+    bool cancelled;
+} ClockPacket;
+
+/* Game data structure start */
+typedef enum
+{
+    NONE,
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+    SHOOT
+} Action;
+/* Game data structure end */
+
+struct t_entity_move_packet
+{
+    pthread_mutex_t *entity_mutex;
+    Action *entity_action;
+};
+
+struct output
+{
+    unsigned int id;
+    Action performed;
+};
+
+struct p_entity_move_packet
+{
+    /* writeaction, readaction, readysignal */
+    pipe_t w, r, s;
+    struct output output;
+};
+
+typedef struct
+{
+    union
+    {
+        struct t_entity_move_packet t;
+        struct p_entity_move_packet p;
+    } carriage;
+
+    unsigned int id;
+    bool cancelled;
+} TinyEntityMovePacket;
+
+typedef struct
+{
+    TinyEntityMovePacket sub_packet;
+    Action default_action;
+} EntityMovePacket;
+
+typedef struct
+{
+    RequestType *rqtype;
+    ContentType *cntype;
+    union
+    {
+        ClockPacket *cpkt;
+        TinyEntityMovePacket *tempkt;
+        EntityMovePacket *empkt;
+    } arg;
+} Package;
+
+/*
+ * Game data structures
+ */
 
 typedef enum
 {
@@ -41,24 +169,21 @@ typedef enum
     ENEMY_FROG,
     ENEMY_BIRD,
     ENEMY_SNAKE,
-    PROJECTILE
+    PROJECTILE,
+    CLOCK
 } EntityTypes;
-
-typedef enum
-{
-    NONE,
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN,
-    SHOOT
-} Action;
 
 typedef struct
 {
     int x;
     int y;
 } Position;
+
+typedef struct
+{
+    Position position;
+    bool used;
+} Hideout;
 
 typedef struct
 {
@@ -71,17 +196,13 @@ typedef struct
     unsigned int length;
 } Entity;
 
-struct _equeue {
+struct _equeue
+{
     struct _equeue *next;
     Entity e;
 };
 
-
-typedef struct
-{
-    Position position;
-    bool used;
-} Hideout;
+typedef struct _equeue EntityQueue;
 
 typedef struct
 {
@@ -99,87 +220,48 @@ typedef struct
     unsigned int time_left;
 } Board;
 
-#define INIT_BOARD(board, screen)                                           \
-    {                                                                       \
-        board.screen_x = screen.x;                                          \
-        int screen_mid = ((int)screen.y / 2);                               \
-        board.top_y = screen_mid - (screen.y % 2 == 0) ? 8 : 9;             \
-        board.low_y = screen_mid + ((screen.y % 2 == 0) ? 16 : 15);         \
-        board.is_game_won = false;                                          \
-        board.points = 0;                                                   \
-        board.lifes_on_start = 3;                                           \
-        board.lifes_left = 3;                                               \
-        board.max_time = 300;                                               \
-        board.time_left = 300;                                              \
-        board.fp.y=board.low_y - 1;                                         \
-        board.fp.x=(int)(board.screen_x/2);                                 \
-    }
 /*
-Game data structures </>
-*/
-
-typedef enum
-{
-    THREAD,
-    PROCESS
-} ExecutionMode;
-
-typedef ExecutionMode RequestType;
+ * Graphical data structures
+ */
 
 typedef struct
 {
     unsigned int y;
     unsigned int x;
-    ExecutionMode exm;
 } Screen;
-
-typedef struct
-{
-    Board *board;
-} GameArgs;
-
-typedef struct
-{
-    Entity *e;
-} Entity_Map;
 
 typedef struct
 {
     int value;
 } Bar;
 
-typedef enum
-{
-    GAMEPKG,
-    GENPKG
-} ContentType;
+#define unpack(_pkg, buffer, rq_type, cn_type)            \
+    Package *pkg = (Package *)_pkg;                       \
+    bool validrq = rq_type == (*(*pkg).rqtype);           \
+    bool validcn = cn_type == (*(*pkg).cntype);           \
+    if (!validrq || !validcn)                             \
+    {                                                     \
+        perror("[Unpacking Error] Invalid request.");     \
+        exit(1);                                          \
+    }                                                     \
+    switch (cn_type)                                      \
+    {                                                     \
+    case CLOCK_PKG:                                       \
+        buffer = (*pkg).arg.cpkt;                         \
+        break;                                            \
+    case ENTITY_PKG:                                      \
+        buffer = (*pkg).arg.empkt;                        \
+        break;                                            \
+    case FROG_PKG:                                        \
+        buffer = (*pkg).arg.tempkt;                       \
+        break;                                            \
+    default:                                              \
+        perror("[Unpacking Error] Invalid content.");     \
+        break;                                            \
+    }
 
-typedef struct
-{
-    RequestType *rqtype;
-    ContentType *cntype;
-    union
-    {
-        GameArgs *targ;
-        void *garg;
-    } arg;
-} Package;
-
-#define unpack(_pkg, buffer, rq_type, cn_type)        \
-    Package *pkg = (Package *)_pkg;                   \
-    bool validrq = rq_type == (*(*pkg).rqtype);       \
-    bool validcn = cn_type == (*(*pkg).cntype);       \
-    if (!validrq || !validcn)                         \
-    {                                                 \
-        perror("[Unpacking Error] Invalid request."); \
-        exit(1);                                      \
-    }                                                 \
-    if (cn_type == GAMEPKG)                           \
-        buffer = (GameArgs *)(*pkg).arg.targ;         \
-    else                                              \
-        buffer = (*pkg).arg.garg
-
-Package *pack(RequestType rqtype, ContentType cntype, void *arg);
+Package *pack(RequestType rqtype, ContentType cntype, ...);
+void destroy_package(Package *pkg);
 
 #define STD_ENTITIES 15
 

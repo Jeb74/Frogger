@@ -17,7 +17,6 @@ int gen_num(int min, int max)
  */
 void end_game(Board *board)
 {
-    pthread_mutex_destroy(&MUTEX);
     endwin();
 }
 
@@ -80,7 +79,7 @@ int get_action_value(Action action)
 */
 LOWCOST_INFO get_action(int argc, char *argv[])
 {
-    LOWCOST_INFO rslt = 0;
+    LOWCOST_INFO result = 0;
 
     if (argc > 3)
     {
@@ -91,20 +90,20 @@ LOWCOST_INFO get_action(int argc, char *argv[])
     for (int i = 0; i < argc; i++)
     {
         if (strcmp("-p", argv[i]) == 0)
-            rslt += 1;
+            result += 1;
         else if (strcmp("-t", argv[i]) == 0)
-            rslt += 0;
+            result += 0;
         else if (strcmp("-q", argv[i]) == 0)
-            rslt += 3;
+            result += 3;
     }
 
-    if (rslt > 4)
+    if (result > 4)
     {
         perror("Wrong arguments: ./frogger <OPTIONAL:execution_type> <OPTIONAL:quit_after_execution>\n");
         exit(EXIT_FAILURE);
     }
 
-    return rslt;
+    return result;
 }
 
 /**
@@ -231,9 +230,7 @@ Bar create_time_bar(Board *board)
  */
 void calculate_bar(Bar *bar, int max, int current)
 {
-    int percentage = (int)calculate_percentage(current, max);
-
-    bar->value = percentage;
+    bar->value = (int) calculate_percentage(current, max);
 }
 
 /**
@@ -265,7 +262,7 @@ char *build_string(const char *__restrict_arr format, ...)
 {
     int slen = strlen(format);
     int count = 0;
-    char **elements = CALLOC(char *, count + 1);
+    char **elements = CALLOC_TERM(char *, count);
 
     va_list args;
     va_start(args, format);
@@ -279,8 +276,8 @@ char *build_string(const char *__restrict_arr format, ...)
             slen += strlen(str);
             
 	        ++count;
-            elements = (char**) realloc(elements, sizeof(char*) * count + 1);
-	}
+            elements = REALLOC_TERM(char *, elements, count);
+        }
     }
 
     char *output = CALLOC(char, slen + TERM);
@@ -305,7 +302,7 @@ char *build_string(const char *__restrict_arr format, ...)
     free(elements);
 
     int ol = strlen(output);
-    output = REALLOC(char, output, ol + TERM);
+    output = REALLOC_TERM(char, output, ol);
     output[ol] = '\0';
     va_end(args);
     return output;
@@ -327,13 +324,20 @@ char **format_number(int number, char empty[], char fill[])
     size_t height = 0;
     int size_of_char = strlen(fill);
     int size_of_echar = strlen(empty);
+
     char **result = MALLOC(char *, SCORE_HEIGHT);
     CRASH_IF_NULL(result);
 
     for (size_t i = 0; i < SCORE_LENGTH;)
     {
         char c[SCORE_WIDTH] = {SCORES[number][i], SCORES[number][i+1], SCORES[number][i+2]};
-        result[height] = build_string("%s%s%s", c[0] == EMPTY_CHAR ? empty : fill, c[1] == EMPTY_CHAR ? empty : fill, c[2] == EMPTY_CHAR ? empty : fill);
+
+        char *translated[3];
+        translated[0] = c[0] == EMPTY_CHAR ? empty : fill;
+        translated[1] = c[1] == EMPTY_CHAR ? empty : fill;
+        translated[2] = c[2] == EMPTY_CHAR ? empty : fill;
+
+        result[height] = build_string("%s%s%s", translated[0], translated[1], translated[2]);
         height++;
         i += 4;
     }
@@ -352,10 +356,12 @@ char *num_to_string(int num, int size)
     bool fill = size > 0;
     size = fill ? size : count_digits(num);
 
-    char *numb = (char*) calloc(size + 1, sizeof(char));
+    int ts = 0;
+
+    char *numb = CALLOC_TERM(char, size);
     numb[size] = '\0';
     numb[0] = '0';
-    int ts = 0;
+
     while (num != 0 || fill)
     {   
         /* Sposta indietro la cifra. */
@@ -376,7 +382,7 @@ char *num_to_string(int num, int size)
     }
 
     size = strlen(numb);
-    numb = REALLOC(char, numb, size + TERM);
+    numb = REALLOC_TERM(char, numb, size);
     numb[size] = '\0';
 
     return numb;

@@ -1,4 +1,3 @@
-
 #ifndef FROGGER_GRAPHICS_C
 #define FROGGER_GRAPHICS_C
 

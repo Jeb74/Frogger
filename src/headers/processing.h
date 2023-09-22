@@ -3,6 +3,8 @@
 
 #include "structures.h"
 
+#define KILL_SIGNAL 2
+
 #define READ 0
 #define WRITE 1
 static struct timeval tv = {.tv_sec = 0, .tv_usec = 50};
@@ -18,22 +20,10 @@ if (func <= 0) perror("[Error Handler] Something went wrong: "TOSTRING(__LINE__)
 #define CLOSE_WRITE(_pipe)  \
 {close(_pipe.accesses[WRITE]);}
 
-#define PIPE_SIZE 2
 #define PIPE_NAME 32
 #define FAILED_PIPE (pipe_t){.name=NULL, .accesses={-1,-1}}
 #define PAS 5 // pipe array size
 #define MIN_PAS 2
-
-typedef struct {
-    int accesses[PIPE_SIZE];
-    char *name;
-} pipe_t;
-
-typedef struct {
-    pid_t pid;
-    char *name;
-    LOWCOST_INFO status;
-} Process;
 
 #define OUT_OF_TIME 100
 

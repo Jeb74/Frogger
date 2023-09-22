@@ -61,14 +61,6 @@ int *cancel_threads(pthread_t *threads, int num_threads)
     return codes;
 }
 
-/**
- * Distrugge il mutex.
- */
-void kill_mutex()
-{
-    pthread_mutex_destroy(&MUTEX);
-}
-
 LOWCOST_INFO thread_mode_exec(Screen screen) 
 {
     erase();

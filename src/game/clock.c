@@ -9,42 +9,51 @@ void *manage_clock(void *args)
     ExecutionMode exm = get_exm();
     bool process_mode = exm == PROCESS;
 
-    void *data;
+    ClockPacket *data;
+    unpack(args, data, exm, CLOCK_PKG);
 
-    unpack(args, data, exm, GENPKG);
+    if (process_mode)
+    {
+        CLOSE_READ(data->carriage.p.w);
+        CLOSE_READ(data->carriage.p.s);
+        CLOSE_WRITE(data->carriage.p.r);
 
-    pipe_t w, r, s;
-    unsigned int *time;
-    if (process_mode) {
-        w = findpn(PAS, data, "readtime");
-        r = findpn(PAS, data, "writetime");
-        s = findpn(PAS, data, "readysignal");
-        CLOSE_READ(w);
-        CLOSE_WRITE(r);
-        CLOSE_READ(s);
-        time = CALLOC(unsigned int, 1);
-        readfrm(time, r, sizeof(unsigned int));
+        data->time_left = CALLOC(unsigned int, 1);
+        readfrm(data->time_left, data->carriage.p.r, sizeof(unsigned int));
     }
-    else time = (unsigned int*) data;
 
-    while (time != 0)
+    while (!data->cancelled)
     {
         SLEEP_SECONDS(CLOCK_HIT_EVERY);
-        *time -= *time > 0 ? CLOCK_HIT_EVERY : 0;
+        *data->time_left -= *data->time_left > 0 ? CLOCK_HIT_EVERY : 0;
 
         if (process_mode)
         {
-            LOWCOST_INFO info = true;
-            if (readifready(&info, r, sizeof(LOWCOST_INFO))) exit(EXIT_SUCCESS);
-            writeto(time, w, sizeof(unsigned int));
-            writeto(&info, s, sizeof(bool));
+            LOWCOST_INFO ongoing = !data->cancelled;
+
+            if (readifready(&ongoing, data->carriage.p.s, sizeof(LOWCOST_INFO)) && ongoing == KILL_SIGNAL)
+            {
+                data->cancelled = true;
+            }
+            else
+            {
+                writeto(data->time_left, data->carriage.p.w, sizeof(unsigned int));
+                writeto(&ongoing, data->carriage.p.s, sizeof(bool));
+            }
+        }
+
+        if (*data->time_left <= 0)
+        {
+            data->cancelled = true;
         }
     }
-    if (process_mode) {
-        CLOSE_READ(r);
-        CLOSE_WRITE(w);
-        exit(EXIT_SUCCESS);
+    
+    if (process_mode)
+    {
+        CLOSE_READ(data->carriage.p.r);
+        CLOSE_WRITE(data->carriage.p.w);
     }
+
     return;
 }
 
@@ -53,48 +62,16 @@ void *manage_clock(void *args)
  * @param board La tabella di gioco.
  * @return      Il timer formattato (NECESSITA DI FREE DOPO L'USE).
  */
-char *format_clock_numeric(Board *board) 
+char *format_clock_numeric(Board *board)
 {
     int time_left = board->time_left;
 
-    char* minutes = num_to_string((int)(time_left / 60), 2);
-    char* seconds = num_to_string((int)(time_left % 60), 2);
+    char *minutes = num_to_string((int)(time_left / 60), 2);
+    char *seconds = num_to_string((int)(time_left % 60), 2);
 
     char *clock_fmt = build_string("%s:%s", minutes, seconds);
     free(minutes);
-    free(seconds); 
+    free(seconds);
 
     return clock_fmt;
-}
-
-/**
- * Formatta il timer del gioco in una barra.
- * @param board La tabella di gioco.
- * @return      Il timer formattato (NECESSITA DI FREE DOPO L'USE).
- */
-char *format_clock_bar(Board *board)
-{
-    char *clock = MALLOC_TERM(char, ALLOC_SIZE_TIME_LEFT_BAR);
-    CRASH_IF_NULL(clock);
-
-    int seconds = board->time_left;
-    int max_time = board->max_time;
-
-    int true_size = ALLOC_SIZE_TIME_LEFT_BAR - TERM;
-    int left = true_size - ALREADY_WRITTEN_CHARS;
-
-    int seconds_per_char = max_time / left;
-    int chars = seconds / seconds_per_char;
-
-    snprintf(clock, ALLOC_SIZE_TIME_LEFT_BAR, "TIME LEFT: [           ]");
-
-    for (int i = 1; i < true_size; i++)
-    {
-        if (i <= chars)
-        {
-            clock[i + WRITTEN_TIME_CHARS] = TIME_LEFT_CHAR;
-        }
-    }
-
-    return clock;
 }
