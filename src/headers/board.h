@@ -23,5 +23,8 @@
 void *god(void *arg);
 void init_worker(struct worker_args *worker_args);
 void enqueue_movement(struct worker_args *worker_args, void *raw_packet);
+EntityQueue *create_queue();
+void *manage_entity_movement(void *args);
+Entity walk_through(EntityQueue *eq, unsigned int indx);
 
 #endif // FROGGER_BOARD_H

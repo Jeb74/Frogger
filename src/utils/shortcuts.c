@@ -11,6 +11,14 @@ int gen_num(int min, int max)
     return min + rand() % (max - min + 1);
 }
 
+int rand_pick(int c1, int c2)
+{
+    switch(rand()%2) {
+        case 0: return c1;
+        case 1: return c2;
+    }
+}
+
 /**
  * Termina il gioco.
  * @param board Il puntatore alla board.

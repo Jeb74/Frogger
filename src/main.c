@@ -33,6 +33,7 @@ void m_testing(int argc, char *argv[])
         }
 
     } while (result != 2);
+    endwin();
 }
 
 void a_testing()

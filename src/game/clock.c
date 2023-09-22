@@ -14,12 +14,11 @@ void *manage_clock(void *args)
 
     if (process_mode)
     {
-        CLOSE_READ(data->carriage.p.w);
-        CLOSE_READ(data->carriage.p.s);
-        CLOSE_WRITE(data->carriage.p.r);
-
         data->time_left = CALLOC(unsigned int, 1);
-        readfrm(data->time_left, data->carriage.p.r, sizeof(unsigned int));
+        readfrm(data->time_left, data->carriage.p.c, sizeof(unsigned int));
+        CLOSE_READ(data->carriage.p.c);
+        CLOSE_READ(data->carriage.p.s);
+        CLOSE_WRITE(data->carriage.p.se);
     }
 
     while (!data->cancelled)
@@ -31,13 +30,16 @@ void *manage_clock(void *args)
         {
             LOWCOST_INFO ongoing = !data->cancelled;
 
-            if (readifready(&ongoing, data->carriage.p.s, sizeof(LOWCOST_INFO)) && ongoing == KILL_SIGNAL)
+            if (readifready(&ongoing, data->carriage.p.se, sizeof(LOWCOST_INFO)) && ongoing == KILL_SIGNAL)
             {
                 data->cancelled = true;
             }
+            else if (ongoing == PAUSE_SIGNAL) {
+                readfrm(&ongoing, data->carriage.p.se, sizeof(LOWCOST_INFO));
+            }
             else
             {
-                writeto(data->time_left, data->carriage.p.w, sizeof(unsigned int));
+                writeto(data->time_left, data->carriage.p.c, sizeof(unsigned int));
                 writeto(&ongoing, data->carriage.p.s, sizeof(bool));
             }
         }
@@ -50,8 +52,10 @@ void *manage_clock(void *args)
     
     if (process_mode)
     {
-        CLOSE_READ(data->carriage.p.r);
-        CLOSE_WRITE(data->carriage.p.w);
+        CLOSE_WRITE(data->carriage.p.s);
+        CLOSE_WRITE(data->carriage.p.c);
+        CLOSE_READ(data->carriage.p.se);
+        free(data->time_left);
     }
 
     return;

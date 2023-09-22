@@ -60,3 +60,99 @@ void *god(void *arg)
     //     free(next_job);
     // }
 }
+
+Entity *create_entity(LOWCOST_INFO id, EntityTypes type, Action action, unsigned int *length, Position p) {
+    Entity *e = CALLOC(Entity, 1);
+    e->action = action;
+    e->id = id;
+    e->type = type;
+    e->position = p;
+    switch(e->type) {
+        case TRUCK:
+        e->length = gen_num(TRUCK_MIN_SIZE, TRUCK_MAX_SIZE);
+        break;
+        case ENEMY_BIRD:
+        case ENEMY_FROG:
+        e->length = FROG_WIDTH;
+        break;
+        case ENEMY_SNAKE:
+        if (length != NULL) e->length = gen_num(LOG_MIN_WIDTH, *length);
+        else e->length = gen_num(LOG_MIN_WIDTH, LOG_MAX_WIDTH);
+        break;
+        case CAR:
+        case LOG:
+        e->length = gen_num(LOG_MIN_WIDTH, LOG_MAX_WIDTH);
+        break;
+    }
+    return e;
+}
+
+void add_to_queue(EntityQueue **eq, EntityQueue **eqm) {
+    EntityQueue *_eqm = *eqm;
+    EntityQueue *_eq = *eq;
+    while(_eq->next != NULL) _eq = _eq->next;
+    _eq->next = _eqm;
+    _eqm->id = _eq->id + 1;
+    _eqm->e->id = _eqm->id;
+}
+
+Entity walk_through(EntityQueue *eq, unsigned int indx) {
+    EntityQueue * _eq = eq;
+    while(_eq->next != NULL && _eq->id != indx) _eq = _eq->next;
+    return *(_eq->e);
+}
+
+/**
+ * 0 - 9
+ * Crea una queue di entità predefinite per il gioco (TRONCHI, MACCHINE E CAMION).
+*/
+EntityQueue *create_queue(Board board) {
+    Action action = gen_num(LEFT, RIGHT);
+    EntityQueue *eq = NULL;
+    for (int i = 0; i < STD_ENTITIES; i++) {
+        action = i != 0 && i % 2 == 0 ? !action : action;
+        EntityQueue *eqm = CALLOC(EntityQueue, 1);
+        eqm->id = i;
+        Position p;
+        p.y = board.fp.y - ((i < 10) ? 2 + ((int) i / 2) * 2 : i * 2 - 6);
+        p.x = action == LEFT ? board.screen_x : -1;
+        eqm->e = create_entity(i, i < 10 ? gen_num(CAR, TRUCK) : LOG, action, NULL, p);
+        eqm->next = NULL;
+        if (eq == NULL) eq = eqm;
+        else add_to_queue(&eq, &eqm);
+    }
+}
+
+
+void *manage_entity_movement(void *args) {
+    ExecutionMode exm = get_exm();
+    bool process_mode = exm == PROCESS;
+    EntityMovePacket *data;
+    unpack(args, data, exm, ENTITY_PKG);
+
+    if (process_mode) {
+        readfrm(&(data->default_action), data->sub_packet.carriage.p.c, sizeof(Action));
+        CLOSE_READ(data->sub_packet.carriage.p.c);
+        CLOSE_READ(data->sub_packet.carriage.p.s);
+        CLOSE_WRITE(data->sub_packet.carriage.p.se);
+    }
+    while(!data->sub_packet.cancelled) {
+        SLEEP_MILLIS(100);
+        if (process_mode) {
+            LOWCOST_INFO ongoing = !data->sub_packet.cancelled;
+
+            if (readifready(&ongoing, data->sub_packet.carriage.p.se, sizeof(LOWCOST_INFO)) && ongoing == KILL_SIGNAL) {
+                data->sub_packet.cancelled = true;
+            }
+            else if (ongoing == PAUSE_SIGNAL) {
+                readfrm(&ongoing, data->sub_packet.carriage.p.se, sizeof(LOWCOST_INFO));
+            }
+            else {
+                writeto(&(data->default_action), data->sub_packet.carriage.p.c, sizeof(Action));
+                writeto(&ongoing, data->sub_packet.carriage.p.s, sizeof(bool));
+            }
+        }
+    }
+}
+
+

@@ -65,6 +65,11 @@ typedef struct
     char *name;
 } pipe_t;
 
+typedef struct {
+    pipe_t * pipes;
+    unsigned int size;
+} Pipes;
+
 typedef struct
 {
     pid_t pid;
@@ -79,8 +84,8 @@ struct t_clock_packet
 
 struct p_clock_packet
 {
-    /* writetime, readtime, readysignal */
-    pipe_t w, r, s;
+    /* communicatetime, servicing, readysignal*/
+    pipe_t c, se, s;
 };
 
 typedef struct
@@ -98,12 +103,13 @@ typedef struct
 /* Game data structure start */
 typedef enum
 {
-    NONE,
     LEFT,
     RIGHT,
     UP,
     DOWN,
-    SHOOT
+    SHOOT,
+    NONE,
+    RQPAUSE
 } Action;
 /* Game data structure end */
 
@@ -113,17 +119,20 @@ struct t_entity_move_packet
     Action *entity_action;
 };
 
-struct output
-{
-    unsigned int id;
-    Action performed;
-};
+// <!> Forse non necessario
+// struct output
+// {
+//     unsigned int id;
+//     Action performed;
+// };
 
 struct p_entity_move_packet
 {
-    /* writeaction, readaction, readysignal */
-    pipe_t w, r, s;
-    struct output output;
+    /* communicateaction, servicing, readysignal */
+    pipe_t c, se, s;
+    
+    // <!> Forse non necessario
+    // struct output output;
 };
 
 typedef struct
@@ -199,7 +208,8 @@ typedef struct
 struct _equeue
 {
     struct _equeue *next;
-    Entity e;
+    Entity *e;
+    unsigned int id;
 };
 
 typedef struct _equeue EntityQueue;
@@ -256,7 +266,7 @@ typedef struct
         buffer = (*pkg).arg.tempkt;                       \
         break;                                            \
     default:                                              \
-        perror("[Unpacking Error] Invalid content.");     \
+        perror("[Unpacking Error] Something went wrong.");\
         break;                                            \
     }
 

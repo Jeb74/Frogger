@@ -180,32 +180,88 @@ void fetch_time(pipe_t r, unsigned int *time)
     readifready(time, r, sizeof(unsigned int));
 }
 
+void send_pause_menu() {
+    wgetch(stdscr);
+    return;
+}
+
 /**
  * Quando disponibile, prende il movimento della rana.
  * @param r Il pipe di lettura.
  * @param fp La posizione della rana.
  */
-bool fetch_frog(pipe_t r, Position *fp) 
+bool fetch_frog(pipe_t r, Position *fp, Pipes services) 
 {
     Action action = NONE;
     bool shooting = false;
 
-    if (readifready(&action, r, sizeof(Action))) 
+    if (readifready(&action, r, sizeof(Action)) && action != RQPAUSE) 
     {
         fp->x += action == RIGHT ? 1 : action == LEFT ? -1 : 0;
         fp->y += action == UP ? -2 : action == DOWN ? 2 : 0;
         shooting = action == SHOOT;
     }
+    else if (action == RQPAUSE) {
+        LOWCOST_INFO sig = PAUSE_SIGNAL;
+        for (int i = 0; i < services.size; i++) writeto(&sig, services.pipes[i], sizeof(LOWCOST_INFO));
+        send_pause_menu();
+                     sig = RESUME_SIGNAL;
+        for (int i = 0; i < services.size; i++) writeto(&sig, services.pipes[i], sizeof(LOWCOST_INFO));
+    }
 
     return shooting;
 }
 
-void generate_entity(char name[PIPE_NAME]) {
-
+void generate_entity(unsigned int indx, pipe_t *c, pipe_t *se, pipe_t s, Process *p) {
+    char *id = num_to_string(indx, -1);
+    char *name = build_string("e_%s", id);
+    free(id);
+    char *wpname = build_string("%s_%s", "comm", name);
+    char *rpname = build_string("%s_%s", "service", name);
+    pipe_t *pipes = create_pipes(MIN_PAS, wpname, rpname);
+    *c = pipes[0];
+    *se = pipes[1];
+    free(pipes);
+    free(wpname);
+    free(rpname);
+    *p = palloc(name, manage_entity_movement, pack(PROCESS, ENTITY_PKG, *c, *se, s, indx, NONE));
+    free(name);
 }
 
-void generate_entities(unsigned int en, Process **e, pipe_t **p) {
+void generate_entities(pipe_t **p, pipe_t s) {
+    *p = CALLOC(pipe_t, STD_ENTITIES*2);
+    Process pr;
+    for (int i = 0, j = 0; i < STD_ENTITIES; ++i, j = i * 2) {
+        generate_entity(i, &((*p)[j]), &((*p)[j+1]), s, &pr);
+        if (pr.status < 0) {
+            char *err = build_string("[Process Creation] %s has not completed its lifetime.\n", pr.name);
+            perror(err);
+            free(err);
+            free(pr.name);
+            free(p);
+            exit(EXIT_FAILURE);
+        }
+    }
+}
 
+void instruct_entities(EntityQueue *queue, Pipes *pipes, Pipes *services) {
+    (*services).pipes = REALLOC(pipe_t, (*services).pipes, (*services).size + (*pipes).size/MIN_PAS);
+    Pipes new_pipes = {.size = STD_ENTITIES, .pipes = CALLOC(pipe_t, STD_ENTITIES)};
+    for (int i = 0, s = MIN_PAS, n = 0; i < (*pipes).size; ++i) {
+        pipe_t p = (*pipes).pipes[i];
+        if (p.name[0] == "s") {
+            (*services).pipes[s] = p;
+            s++;
+        }
+        else {
+            new_pipes.pipes[n] = p;
+            Entity e = walk_through(queue, n);
+            writeto(&(e.action), p, sizeof(Action));
+            n++;
+        }
+    }
+    free((*pipes).pipes);
+    *pipes = new_pipes;
 }
 
 /**
@@ -224,38 +280,37 @@ LOWCOST_INFO process_mode_exec(Screen screen)
     ExecutionMode exm = get_exm();
 
     // Processing for real
-    pipe_t *arr = create_pipes(PAS, "writetime", "readtime", "writeaction", "readaction", "readysignal");
+    pipe_t *arr = create_pipes(PAS, TIME_COMMS, SERVICE_TIME, USER_COMMS, SERVICE_USER, READY_PIPE);
 
-    pipe_t wt = findpn(PAS, arr, "writetime");
-    pipe_t rt = findpn(PAS, arr, "readtime");
-    pipe_t wa = findpn(PAS, arr, "writeaction");
-    pipe_t ra = findpn(PAS, arr, "readaction");
-    pipe_t rs = findpn(PAS, arr, "readysignal");
+    pipe_t rt = findpn(PAS, arr, TIME_COMMS);
+    pipe_t ra = findpn(PAS, arr, USER_COMMS);
+    pipe_t rs = findpn(PAS, arr, READY_PIPE);
+    Pipes services = {.pipes = CALLOC(pipe_t, MIN_PAS), .size = MIN_PAS};
+    services.pipes[0] = findpn(PAS, arr, SERVICE_TIME);
+    services.pipes[1] = findpn(PAS, arr, SERVICE_USER);
+    free(arr);
 
-    Process time = palloc("time", manage_clock, pack(exm, CLOCK_PKG, rt, wt, rs, &(board.time_left)));
+    Process time = palloc("time", manage_clock, pack(exm, CLOCK_PKG, rt, services.pipes[0], rs, &(board.time_left)));
     if (time.status < 0) return 2;
-    Process frog = palloc("frog", manage_frog, pack(exm, FROG_PKG, ra, wa, rs, 127));
+    Process frog = palloc("frog", manage_frog, pack(exm, FROG_PKG, ra, services.pipes[1], rs, 127));
     if (frog.status < 0) return 2;
 
-    CLOSE_READ(wt);
+    writeto(&(board.max_time), rt, sizeof(unsigned int));
     CLOSE_WRITE(rt);
-    CLOSE_READ(wa);
-    CLOSE_WRITE(ra);
     CLOSE_WRITE(rs);
+    CLOSE_WRITE(ra);
 
-    writeto(&(board.max_time), wt, sizeof(unsigned int));
-
-    // Process *entities;
-    // pipe_t *pipes;
-    // generate_entities(STD_ENTITIES, &entities, &pipes);
-
+    Pipes pipes = {.size=STD_ENTITIES*2};
+    int currently_created = STD_ENTITIES;
+    generate_entities(&(pipes.pipes), rs);
+    EntityQueue *queue = create_queue(board);
+    instruct_entities(queue, &pipes, &services);
     bool signal = false;
     do
     {
-        //EntityQueue queue = fetch_entities(&pipes);
-        fetch_frog(ra, &(board.fp));
+        fetch_frog(ra, &(board.fp), services);
         fetch_time(rt, &(board.time_left));
-        update_graphics(&board/*, queue */);
+        update_graphics(&board, queue);
         readfrm(&signal, rs, sizeof(bool));
     } while (signal);
 

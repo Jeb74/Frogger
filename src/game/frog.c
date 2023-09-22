@@ -21,9 +21,7 @@ void *manage_frog(void *args)
     
     if (process_mode)
     {
-        CLOSE_READ(data->carriage.p.w);
-        CLOSE_READ(data->carriage.p.s);
-        CLOSE_WRITE(data->carriage.p.r);
+        CLOSE_READ(data->carriage.p.c);
     }
 
     while (!data->cancelled)
@@ -49,6 +47,9 @@ void *manage_frog(void *args)
             case ' ':
                 action = SHOOT;
                 break;
+            case KEY_EXIT:
+                action = RQPAUSE;
+                break;
             default:
                 continue;
         }
@@ -57,12 +58,13 @@ void *manage_frog(void *args)
         {
             LOWCOST_INFO ongoing = !data->cancelled;
 
-            if (readifready(&ongoing, data->carriage.p.s, sizeof(LOWCOST_INFO)) && ongoing == KILL_SIGNAL)
-            {
+            if (readifready(&ongoing, data->carriage.p.se, sizeof(LOWCOST_INFO)) && ongoing == KILL_SIGNAL) {
                 data->cancelled = true;
             }
-            else
-            {
+            else if (ongoing == PAUSE_SIGNAL) {
+                readfrm(&ongoing, data->carriage.p.se, sizeof(LOWCOST_INFO));
+            }
+            else {
                 gettimeofday(&ct, NULL);
 
                 delay = ct.tv_sec - st.tv_sec;
@@ -70,7 +72,7 @@ void *manage_frog(void *args)
 
                 if (udelay >= 100000 || delay >= 1)
                 {
-                    writeto(&action, data->carriage.p.w, sizeof(Action));
+                    writeto(&action, data->carriage.p.c, sizeof(Action));
                     writeto(&ongoing, data->carriage.p.s, sizeof(bool));
                     st = ct;
                 }
@@ -84,8 +86,9 @@ void *manage_frog(void *args)
 
     if (process_mode) 
     {
-        CLOSE_READ(data->carriage.p.r);
-        CLOSE_WRITE(data->carriage.p.w);
+        CLOSE_WRITE(data->carriage.p.c);
+        CLOSE_READ(data->carriage.p.s);
+        CLOSE_READ(data->carriage.p.se);
     }
 
     return;

@@ -15,8 +15,8 @@ ClockPacket *create_clock_packet(va_list args, ExecutionMode exm)
     }
     else
     {
-        (*clock_pkt).carriage.p.w = va_arg(args, pipe_t);
-        (*clock_pkt).carriage.p.r = va_arg(args, pipe_t);
+        (*clock_pkt).carriage.p.c = va_arg(args, pipe_t);
+        (*clock_pkt).carriage.p.se = va_arg(args, pipe_t);
         (*clock_pkt).carriage.p.s = va_arg(args, pipe_t);
     }
 
@@ -42,8 +42,8 @@ TinyEntityMovePacket *create_tiny_entity_move_packet(va_list args, ExecutionMode
     }
     else
     {
-        (*tiny_entity_move_pkt).carriage.p.w = va_arg(args, pipe_t);
-        (*tiny_entity_move_pkt).carriage.p.r = va_arg(args, pipe_t);
+        (*tiny_entity_move_pkt).carriage.p.c = va_arg(args, pipe_t);
+        (*tiny_entity_move_pkt).carriage.p.se = va_arg(args, pipe_t);
         (*tiny_entity_move_pkt).carriage.p.s = va_arg(args, pipe_t);
     }
 

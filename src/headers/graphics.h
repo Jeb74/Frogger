@@ -82,6 +82,6 @@ void init_graphics(Screen *scrn);
 void center_string(char str[], int max);
 
 LOWCOST_INFO initial_menu(int max, int may);
-void update_graphics(Board *board);
+void update_graphics(Board *board, EntityQueue *eq);
 
 #endif

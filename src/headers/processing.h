@@ -4,6 +4,9 @@
 #include "structures.h"
 
 #define KILL_SIGNAL 2
+#define SECONDARY_KILL_SIGNAL 3
+#define PAUSE_SIGNAL 69
+#define RESUME_SIGNAL 70
 
 #define READ 0
 #define WRITE 1
@@ -24,6 +27,15 @@ if (func <= 0) perror("[Error Handler] Something went wrong: "TOSTRING(__LINE__)
 #define FAILED_PIPE (pipe_t){.name=NULL, .accesses={-1,-1}}
 #define PAS 5 // pipe array size
 #define MIN_PAS 2
+
+#define TIME_COMMS "comms_time"
+#define USER_COMMS "comms_action"
+#define READY_PIPE "ready_signal"
+#define SERVICE_TIME "service_time"
+#define SERVICE_USER "service_action"
+
+#define ENTITY_COMMS(indx) "comms_e_"STRINGIFY(indx)
+#define ENTITY_SERVICES(indx) "service_e_"TOSTRING(indx)
 
 #define OUT_OF_TIME 100
 
