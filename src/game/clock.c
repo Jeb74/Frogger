@@ -12,6 +12,8 @@ void *manage_clock(void *args)
     ClockPacket *data;
     unpack(args, data, exm, CLOCK_PKG);
 
+    LOWCOST_INFO signal;
+
     if (process_mode)
     {
         data->time_left = CALLOC(unsigned int, 1);
@@ -28,19 +30,20 @@ void *manage_clock(void *args)
 
         if (process_mode)
         {
-            LOWCOST_INFO ongoing = !data->cancelled;
+            readifready(&signal, data->carriage.p.se, sizeof(LOWCOST_INFO));
 
-            if (readifready(&ongoing, data->carriage.p.se, sizeof(LOWCOST_INFO)) && ongoing == KILL_SIGNAL)
+            if (signal == KILL_SIGNAL)
             {
                 data->cancelled = true;
             }
-            else if (ongoing == PAUSE_SIGNAL) {
-                readfrm(&ongoing, data->carriage.p.se, sizeof(LOWCOST_INFO));
+            else if (signal == PAUSE_SIGNAL)
+            {
+                readfrm(&signal, data->carriage.p.se, sizeof(LOWCOST_INFO));
             }
             else
             {
                 writeto(data->time_left, data->carriage.p.c, sizeof(unsigned int));
-                writeto(&ongoing, data->carriage.p.s, sizeof(bool));
+                writeto(&signal, data->carriage.p.s, sizeof(bool));
             }
         }
 

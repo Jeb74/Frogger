@@ -180,7 +180,8 @@ void fetch_time(pipe_t r, unsigned int *time)
     readifready(time, r, sizeof(unsigned int));
 }
 
-void send_pause_menu() {
+void send_pause_menu() 
+{
     wgetch(stdscr);
     return;
 }
@@ -285,9 +286,11 @@ LOWCOST_INFO process_mode_exec(Screen screen)
     pipe_t rt = findpn(PAS, arr, TIME_COMMS);
     pipe_t ra = findpn(PAS, arr, USER_COMMS);
     pipe_t rs = findpn(PAS, arr, READY_PIPE);
+
     Pipes services = {.pipes = CALLOC(pipe_t, MIN_PAS), .size = MIN_PAS};
     services.pipes[0] = findpn(PAS, arr, SERVICE_TIME);
     services.pipes[1] = findpn(PAS, arr, SERVICE_USER);
+
     free(arr);
 
     Process time = palloc("time", manage_clock, pack(exm, CLOCK_PKG, rt, services.pipes[0], rs, &(board.time_left)));
@@ -296,6 +299,7 @@ LOWCOST_INFO process_mode_exec(Screen screen)
     if (frog.status < 0) return 2;
 
     writeto(&(board.max_time), rt, sizeof(unsigned int));
+
     CLOSE_WRITE(rt);
     CLOSE_WRITE(rs);
     CLOSE_WRITE(ra);
@@ -303,9 +307,11 @@ LOWCOST_INFO process_mode_exec(Screen screen)
     Pipes pipes = {.size=STD_ENTITIES*2};
     int currently_created = STD_ENTITIES;
     generate_entities(&(pipes.pipes), rs);
+
     EntityQueue *queue = create_queue(board);
     instruct_entities(queue, &pipes, &services);
     bool signal = false;
+    
     do
     {
         fetch_frog(ra, &(board.fp), services);

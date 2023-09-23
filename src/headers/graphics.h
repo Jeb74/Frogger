@@ -3,80 +3,109 @@
 
 #include "structures.h"
 
-#define SELECTED_FIRST                                  \
-    attron(COLOR_PAIR(2) | A_BOLD);                     \
-    center_string("> Start threads version <\n", max);  \
-    attroff(COLOR_PAIR(2) | A_BOLD);                    \
-    attron(COLOR_PAIR(1));                              \
-    center_string("Start processes version\n", max);    \
-    attroff(COLOR_PAIR(1));                             \
-    attron(COLOR_PAIR(3));                              \
-    center_string("Quit\n", max);                       \
-    attroff(COLOR_PAIR(3));
+/* Color codes start */
 
-#define SELECTED_SECOND                                     \
-    attron(COLOR_PAIR(1));                                  \
-    center_string("Start threads version\n", max);          \
-    attroff(COLOR_PAIR(1));                                 \
-    attron(COLOR_PAIR(2) | A_BOLD);                         \
-    center_string("> Start processes version <\n", max);    \
-    attroff(COLOR_PAIR(2) | A_BOLD);                        \
-    attron(COLOR_PAIR(3));                                  \
-    center_string("Quit\n", max);                           \
-    attroff(COLOR_PAIR(3));
+#define _COLOR_MENU_GREEN 1
+#define _COLOR_MENU_YELLOW 2
+#define _COLOR_MENU_RED 3
 
-#define SELECTED_THIRD                               \
-    attron(COLOR_PAIR(1));                           \
-    center_string("Start threads version\n", max);   \
-    attroff(COLOR_PAIR(1));                          \
-    attron(COLOR_PAIR(1));                           \
-    center_string("Start processes version\n", max); \
-    attroff(COLOR_PAIR(1));                          \
-    attron(COLOR_PAIR(2) | A_BOLD);                  \
-    center_string("> Quit <\n", max);                \
-    attroff(COLOR_PAIR(2) | A_BOLD);
+#define _COLOR_RESET 1
+#define _COLOR_HIDEOUT 2
+#define _COLOR_RIVER 3
+#define _COLOR_LAWN 4
+#define _COLOR_ROAD 5
+#define _COLOR_SIDEWALK 6
+#define _COLOR_HP_FULL 7
+#define _COLOR_HP_PARTIAL 8
+#define _COLOR_HP_EMPTY 9
+#define _COLOR_SCORE 10
+#define _COLOR_FROG 11
 
-#define HIDEOUTS 2
-#define RIVER 7
-#define GRASS_SIDEWALK 8
-#define ROAD 13
-#define SIDEWALK 14
+/* Color codes end */
 
-#define RESET_COLOR 1
+#define _Y_HIDEOUT 2
+#define _Y_RIVER 7
+#define _Y_LAWN 8
+#define _Y_ROAD 13
+#define _Y_SIDEWALK 14
 
-#define HIDEOUTS_C 2
-#define RIVER_C 3
-#define GRASS_SIDEWALK_C 4
-#define ROAD_C 5
-#define SIDEWALK_C 6
-
-#define HP_FULL_SLOT 7
-#define HP_PARTIAL_SLOT 8
-#define HP_EMPTY_SLOT 9
-
-#define SCORE_C 10
-
-#define FROG 11
-
-#define INIT_COLORS                                         \
-{                                                           \
-    init_pair(RESET_COLOR, COLOR_BLACK, COLOR_BLACK);       \
-                                                            \
-    init_pair(HIDEOUTS_C, COLOR_BLACK, COLOR_GREEN);        \
-    init_pair(RIVER_C, COLOR_BLACK, COLOR_BLUE);            \
-    init_pair(GRASS_SIDEWALK_C, COLOR_BLACK, COLOR_GREEN);  \
-    init_pair(ROAD_C, COLOR_WHITE, COLOR_BLACK);            \
-    init_pair(SIDEWALK_C, COLOR_BLACK, COLOR_YELLOW);       \
-                                                            \
-    init_pair(HP_FULL_SLOT, COLOR_WHITE, COLOR_GREEN);      \
-    init_pair(HP_PARTIAL_SLOT, COLOR_WHITE, COLOR_YELLOW);  \
-    init_pair(HP_EMPTY_SLOT, COLOR_WHITE, COLOR_RED);       \
-    init_pair(SCORE_C, COLOR_YELLOW, COLOR_BLACK);          \
-                                                            \
-    init_pair(FROG, COLOR_GREEN, COLOR_BLACK);              \
-}
+#define INIT_COLORS                                              \
+    {                                                            \
+        init_pair(_COLOR_RESET, COLOR_BLACK, COLOR_BLACK);       \
+                                                                 \
+        init_pair(_COLOR_HIDEOUT, COLOR_BLACK, COLOR_GREEN);     \
+        init_pair(_COLOR_RIVER, COLOR_BLACK, COLOR_BLUE);        \
+        init_pair(_COLOR_LAWN, COLOR_BLACK, COLOR_GREEN);        \
+        init_pair(_COLOR_ROAD, COLOR_WHITE, COLOR_BLACK);        \
+        init_pair(_COLOR_SIDEWALK, COLOR_BLACK, COLOR_YELLOW);   \
+                                                                 \
+        init_pair(_COLOR_HP_FULL, COLOR_WHITE, COLOR_GREEN);     \
+        init_pair(_COLOR_HP_PARTIAL, COLOR_WHITE, COLOR_YELLOW); \
+        init_pair(_COLOR_HP_EMPTY, COLOR_WHITE, COLOR_RED);      \
+        init_pair(_COLOR_SCORE, COLOR_YELLOW, COLOR_BLACK);      \
+                                                                 \
+        init_pair(_COLOR_FROG, COLOR_GREEN, COLOR_BLACK);        \
+    }
 
 #define INFO_BARS 3
+
+#define _FROG_ART_LENGTH 20
+const static char *_FROG_ART[_FROG_ART_LENGTH] =
+    {
+        "\n",
+        "____  __.---\"\"---.__  ____\n",
+        "/####\\/              \\/####\\\n",
+        "(   /\\ )              ( /\\   )\n",
+        "\\____/                \\____/\n",
+        "__/                          \\__\n",
+        ".-\"    .                      .    \"-.\n",
+        "|  |   \\.._                _../   |  |\n",
+        " \\  \\    \\.\"-.__________.-\"./    /  /\n",
+        "\\  \\    \"--.________.--\"    /  /\n",
+        "___\\  \\_                    _/  /___\n",
+        "./    )))))                  (((((    \\.\n",
+        "\\                                      /\n",
+        "\\           \\_          _/           /\n",
+        "\\    \\____/\"\"-.____.-\"\"\\____/    /\n",
+        "\\    \\                  /    /\n",
+        "\\.  .|                |.  ./\n",
+        " .\" / |  \\              /  | \\  \".\n",
+        ".\"  /   |   \\            /   |   \\   \".\n",
+        "/.-./.--.|.--.\\          /.--.|.--.\\.-.|\"\n"
+    };
+
+#define _FROGGER_LOGO_LENGTH 6
+const static char *_FROGGER_LOGO[_FROGGER_LOGO_LENGTH] =
+    {
+        "    ______                                \n",
+        "   / ____/________  ____ _____ ____  _____\n",
+        "  / /_  / ___/ __ \\/ __ `/ __ `/ _ \\/ ___/\n",
+        " / __/ / /  / /_/ / /_/ / /_/ /  __/ /    \n",
+        "/_/   /_/   \\____/\\__, /\\__, /\\___/_/     \n",
+        "                 /____//____/             \n\n"
+    };
+
+#define _MENU_CHOICES_LENGTH 3
+const static char *_MENU_CHOICES[_MENU_CHOICES_LENGTH] =
+    {
+        "Start threads version\n",
+        "Start processes version\n",
+        "Quit\n"
+    };
+
+const static char *_MENU_CHOICES_SELECTED[_MENU_CHOICES_LENGTH] =
+    {
+        "> Start threads version <\n",
+        "> Start processes version <\n",
+        "> Quit <\n"
+    };
+
+typedef enum
+{
+    START_THREADS,
+    START_PROCESSES,
+    QUIT
+} MenuChoice;
 
 void init_graphics(Screen *scrn);
 void center_string(char str[], int max);

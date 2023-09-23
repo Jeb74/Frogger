@@ -29,6 +29,11 @@
 #define LAWN_LANES 2
 #define LAWN_LANE_HEIGHT FROG_HEIGHT
 
+#define LOGS_LANES RIVER_LANES
+#define LOGS_HEIGHT RIVER_LANE_HEIGHT
+#define LOGS_MIN_WIDTH FROG_WIDTH * 2
+#define LOGS_MAX_WIDTH FROG_WIDTH * 3
+
 #define SCORE_HEIGHT 5
 #define SCORE_WIDTH 3
 #define SCORE_LENGTH 20
@@ -61,5 +66,7 @@ static ExecutionMode exm;
 
 void set_exm(ExecutionMode exm);
 ExecutionMode get_exm();
+
+void hopper(bool value);
 
 #endif // FROGGER_DATA_H

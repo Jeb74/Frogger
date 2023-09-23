@@ -29,58 +29,6 @@ void end_game(Board *board)
 }
 
 /**
- * Trova il simbolo corrispondente ad un determinato tipo di entità.
- * @param type  Il tipo di entità.
- * @return      Il simbolo corrispondente.
- */
-char get_entity_symbol(EntityTypes type)
-{
-    switch (type)
-    {
-    case FROG:
-        return 'F';
-    case CAR:
-        return 'C';
-    case TRUCK:
-        return 'T';
-    case LOG:
-        return 'L';
-    case ENEMY_FROG:
-        return 'E';
-    case ENEMY_BIRD:
-        return 'B';
-    case ENEMY_SNAKE:
-        return 'S';
-    case PROJECTILE:
-        return ':';
-    default:
-        return '?';
-    }
-}
-
-/**
- * Prende il valore della direzione.
- * @param action La direzione.
- * @return          Il valore della direzione.
- */
-int get_action_value(Action action)
-{
-    switch (action)
-    {
-    case LEFT:
-        return -1;
-    case RIGHT:
-        return 1;
-    case UP:
-        return -1;
-    case DOWN:
-        return 1;
-    default:
-        return 0;
-    }
-}
-
-/**
  * Considera gli argomenti del programma.
  * @param argc  Il numero di argomenti.
  * @param argv  Gli argomenti.
@@ -231,6 +179,16 @@ Bar create_time_bar(Board *board)
 }
 
 /**
+ * Crea una barra del punteggio.
+ * @param board Il puntatore alla board.
+ * @return     La barra.
+ */
+Bar create_score_bar(Board *board)
+{
+    return (Bar) {.value = board->points};
+}
+
+/**
  * Aggiorna la barra.
  * @param bar       La barra.
  * @param max       Il massimo.
@@ -259,6 +217,16 @@ void calculate_life_bar(Bar *bar, Board *board)
 void calculate_time_bar(Bar *bar, Board *board)
 {
     calculate_bar(bar, board->max_time, board->time_left);
+}
+
+/**
+ * Aggiorna la barra del punteggio.
+ * @param bar       La barra.
+ * @param board     Il puntatore alla board.
+ */
+void calculate_score_bar(Bar *bar, Board *board)
+{
+    bar->value = board->points;
 }
 
 /**
@@ -336,18 +304,16 @@ char **format_number(int number, char empty[], char fill[])
     char **result = MALLOC(char *, SCORE_HEIGHT);
     CRASH_IF_NULL(result);
 
-    for (size_t i = 0; i < SCORE_LENGTH;)
-    {
-        char c[SCORE_WIDTH] = {SCORES[number][i], SCORES[number][i+1], SCORES[number][i+2]};
+    char *translated[3];
 
-        char *translated[3];
-        translated[0] = c[0] == EMPTY_CHAR ? empty : fill;
-        translated[1] = c[1] == EMPTY_CHAR ? empty : fill;
-        translated[2] = c[2] == EMPTY_CHAR ? empty : fill;
+    for (size_t i = 0; i < SCORE_LENGTH; i += 4)
+    {
+        translated[0] = SCORES[number][i]   == EMPTY_CHAR ? empty : fill;
+        translated[1] = SCORES[number][i + 1] == EMPTY_CHAR ? empty : fill;
+        translated[2] = SCORES[number][i + 2] == EMPTY_CHAR ? empty : fill;
 
         result[height] = build_string("%s%s%s", translated[0], translated[1], translated[2]);
         height++;
-        i += 4;
     }
 
     return result;
@@ -385,7 +351,7 @@ char *num_to_string(int num, int size)
             num /= 10;
         }
 
-        fill = fill ? ts != size-1 : false;
+        fill = fill ? ts != size - 1 : false;
         ts++;
     }
 

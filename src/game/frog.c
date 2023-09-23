@@ -18,7 +18,9 @@ void *manage_frog(void *args)
     gettimeofday(&st, NULL);
 
     long udelay, delay;
-    
+
+    LOWCOST_INFO signal;
+
     if (process_mode)
     {
         CLOSE_READ(data->carriage.p.c);
@@ -54,33 +56,43 @@ void *manage_frog(void *args)
                 continue;
         }
 
+        signal = !data->cancelled;
+
+        gettimeofday(&ct, NULL);
+
+        delay = ct.tv_sec - st.tv_sec;
+        udelay = ct.tv_usec - st.tv_usec;
+
+        if (udelay >= 100000 || delay >= 1)
+        {
+            if (process_mode)
+            {
+                writeto(&action, data->carriage.p.c, sizeof(Action));
+                writeto(&signal, data->carriage.p.s, sizeof(bool));
+                st = ct;
+            }
+            else
+            {
+                EXEC_WHILE_LOCKED(data->carriage.t.entity_mutex, *data->carriage.t.entity_action = action)
+            }
+        }
+        
         if (process_mode)
         {
-            LOWCOST_INFO ongoing = !data->cancelled;
+            readifready(&signal, data->carriage.p.se, sizeof(LOWCOST_INFO));
 
-            if (readifready(&ongoing, data->carriage.p.se, sizeof(LOWCOST_INFO)) && ongoing == KILL_SIGNAL) {
+            if (signal == KILL_SIGNAL)
+            {
                 data->cancelled = true;
             }
-            else if (ongoing == PAUSE_SIGNAL) {
-                readfrm(&ongoing, data->carriage.p.se, sizeof(LOWCOST_INFO));
-            }
-            else {
-                gettimeofday(&ct, NULL);
-
-                delay = ct.tv_sec - st.tv_sec;
-                udelay = ct.tv_usec - st.tv_usec;
-
-                if (udelay >= 100000 || delay >= 1)
-                {
-                    writeto(&action, data->carriage.p.c, sizeof(Action));
-                    writeto(&ongoing, data->carriage.p.s, sizeof(bool));
-                    st = ct;
-                }
+            else if (signal == PAUSE_SIGNAL)
+            {
+                readfrm(&signal, data->carriage.p.se, sizeof(LOWCOST_INFO));
             }
         }
         else
         {
-            // TODO - Mandare i pacchetti di movimento via thread.
+            hopper(false);
         }
     }
 

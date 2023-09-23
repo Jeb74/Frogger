@@ -106,10 +106,13 @@ Entity walk_through(EntityQueue *eq, unsigned int indx) {
  * 0 - 9
  * Crea una queue di entità predefinite per il gioco (TRONCHI, MACCHINE E CAMION).
 */
-EntityQueue *create_queue(Board board) {
+EntityQueue *create_queue(Board board) 
+{
     Action action = gen_num(LEFT, RIGHT);
     EntityQueue *eq = NULL;
-    for (int i = 0; i < STD_ENTITIES; i++) {
+    
+    for (int i = 0; i < STD_ENTITIES; i++)
+    {
         action = i != 0 && i % 2 == 0 ? !action : action;
         EntityQueue *eqm = CALLOC(EntityQueue, 1);
         eqm->id = i;
@@ -123,34 +126,47 @@ EntityQueue *create_queue(Board board) {
     }
 }
 
-
-void *manage_entity_movement(void *args) {
+void *manage_entity_movement(void *args)
+{
     ExecutionMode exm = get_exm();
     bool process_mode = exm == PROCESS;
+
     EntityMovePacket *data;
     unpack(args, data, exm, ENTITY_PKG);
 
-    if (process_mode) {
+    if (process_mode) 
+    {
         readfrm(&(data->default_action), data->sub_packet.carriage.p.c, sizeof(Action));
         CLOSE_READ(data->sub_packet.carriage.p.c);
         CLOSE_READ(data->sub_packet.carriage.p.s);
         CLOSE_WRITE(data->sub_packet.carriage.p.se);
     }
-    while(!data->sub_packet.cancelled) {
+
+    while(!data->sub_packet.cancelled) 
+    {
         SLEEP_MILLIS(100);
-        if (process_mode) {
+
+        if (process_mode) 
+        {
             LOWCOST_INFO ongoing = !data->sub_packet.cancelled;
 
-            if (readifready(&ongoing, data->sub_packet.carriage.p.se, sizeof(LOWCOST_INFO)) && ongoing == KILL_SIGNAL) {
+            if (readifready(&ongoing, data->sub_packet.carriage.p.se, sizeof(LOWCOST_INFO)) && ongoing == KILL_SIGNAL) 
+            {
                 data->sub_packet.cancelled = true;
             }
-            else if (ongoing == PAUSE_SIGNAL) {
+            else if (ongoing == PAUSE_SIGNAL) 
+            {
                 readfrm(&ongoing, data->sub_packet.carriage.p.se, sizeof(LOWCOST_INFO));
             }
-            else {
+            else 
+            {
                 writeto(&(data->default_action), data->sub_packet.carriage.p.c, sizeof(Action));
                 writeto(&ongoing, data->sub_packet.carriage.p.s, sizeof(bool));
             }
+        }
+        else
+        {
+
         }
     }
 }

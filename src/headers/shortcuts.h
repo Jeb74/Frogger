@@ -56,6 +56,13 @@
 // Rilascia il lock di un mutex.
 #define RELEASE_LOCK(mutex) pthread_mutex_unlock(&mutex)
 
+#define EXEC_WHILE_LOCKED(mutex, func) \
+    {                                  \
+        AQUIRE_LOCK(mutex);            \
+        func;                          \
+        RELEASE_LOCK(mutex);           \
+    }
+
 // Controlla se il puntatore e' valido, altrimenti, termina il programma per mancata allocazione di memoria.
 #define CRASH_IF_NULL(ptr)                           \
     if (!ptr)                                        \
@@ -104,19 +111,22 @@ int gen_num(int min, int max);
 LOWCOST_INFO get_action(int argc, char *argv[]);
 unsigned int calwidth(unsigned int width, unsigned int panels, LOWCOST_INFO indx);
 
-char get_entity_symbol(EntityTypes type);
 void end_game(Board *board);
 
 int count_digits(int value);
 int divide_if_possible(int dividend, int divisor);
 
 Bar create_bar(int max, int current);
+void calculate_bar(Bar *bar, int max, int current);
+
+Bar create_score_bar(Board *board);
 Bar create_life_bar(Board *board);
 Bar create_time_bar(Board *board);
 
-void calculate_bar(Bar *bar, int max, int current);
+void calculate_score_bar(Bar *bar, Board *board);
 void calculate_life_bar(Bar *bar, Board *board);
 void calculate_time_bar(Bar *bar, Board *board);
+
 char **format_number(int number, char empty[], char fill[]);
 char *num_to_string(int num, int size);
 char *build_string(const char *__restrict_arr format, ...);

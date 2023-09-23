@@ -89,17 +89,17 @@ Package *pack(RequestType rqtype, ContentType cntype, ...)
 
     switch (cntype)
     {
-    case CLOCK_PKG:
-        pkg->arg.cpkt = create_clock_packet(args, rqtype);
-        break;
-    case FROG_PKG:
-        pkg->arg.tempkt = create_tiny_entity_move_packet(args, rqtype);
-        break;
-    case ENTITY_PKG:
-        pkg->arg.empkt = create_entity_move_packet(args, rqtype);
-        break;
-    default:
-        break;
+        case CLOCK_PKG:
+            pkg->arg.cpkt = create_clock_packet(args, rqtype);
+            break;
+        case FROG_PKG:
+            pkg->arg.tempkt = create_tiny_entity_move_packet(args, rqtype);
+            break;
+        case ENTITY_PKG:
+            pkg->arg.empkt = create_entity_move_packet(args, rqtype);
+            break;
+        default:
+            break;
     }
 
     va_end(args);

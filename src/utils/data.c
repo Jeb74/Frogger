@@ -18,6 +18,27 @@ ExecutionMode get_exm()
     return exm;
 }
 
+void hopper(bool value)
+{
+    static sem_t hopper_sem;
+    static bool once = false;
+
+    if (!once)
+    {
+        once = true;
+        sem_init(&hopper_sem, 0, 1);
+    }
+
+    sem_wait(&hopper_sem);
+    
+    if (value)
+    {
+        getchar(); // main
+    } 
+    
+    sem_post(&hopper_sem);
+}
+
 /**
  * Inizializza il semaforo per il worker.
  * @param worker_args   I parametri del worker.

@@ -18,11 +18,13 @@ void create_thread(pthread_t *thread, void *manager, Package *args)
  * @param manager       Il manager dei thread.
  * @param args          Gli argomenti dei thread.
  */
-void create_threads(pthread_t *threads, int num_threads, void *manager, Package *args)
+void create_threads(pthread_t **threads, int num_threads, void *manager, Package *args)
 {
+    *threads = MALLOC(pthread_t, num_threads);
+
     for (int i = 0; i < num_threads; i++)
     {
-        create_thread(&(threads[i]), manager, args);
+        create_thread(&(*threads)[i], manager, args);
     }
 }
 
@@ -61,12 +63,67 @@ int *cancel_threads(pthread_t *threads, int num_threads)
     return codes;
 }
 
+void clone_update_life(Board *board, Board *boardClone, pthread_mutex_t mutex)
+{
+    EXEC_WHILE_LOCKED(mutex, boardClone->lifes_left = board->lifes_left)
+}
+
+void clone_update_time(Board *board, Board *boardClone, pthread_mutex_t mutex)
+{
+    EXEC_WHILE_LOCKED(mutex, boardClone->time_left = board->time_left)
+}
+
+void clone_update_score(Board *board, Board *boardClone, pthread_mutex_t mutex)
+{
+    EXEC_WHILE_LOCKED(mutex, boardClone->points = board->points)
+}
+
 LOWCOST_INFO thread_mode_exec(Screen screen) 
 {
     erase();
-    Board board;
+    refresh();
+    
+    Board board, boardClone;
+
+    INIT_COLORS;
     INIT_BOARD(board, screen);
-    display_board(&board);
-    getch();
-    endwin();
+    INIT_BOARD(boardClone, screen);
+
+    ExecutionMode exm = get_exm();
+
+    /* Clock start */
+
+    pthread_t clockThread;
+    pthread_mutex_t clockMutex = PTHREAD_MUTEX_INITIALIZER;
+
+    Package *clockPackage = pack(exm, CLOCK_PKG, &clockMutex, &(board.time_left));
+
+    create_thread(&clockThread, manage_clock, clockPackage);
+
+    /* Clock end */
+
+    /* Frog start */
+
+    pthread_t frogThread;
+    pthread_mutex_t frogMutex = PTHREAD_MUTEX_INITIALIZER;
+
+    Package *frogPackage = pack(exm, FROG_PKG, &frogMutex, &board);
+
+    create_thread(&frogThread, manage_frog, frogPackage);
+
+    /* Frog end */
+
+    do
+    {
+        clone_update_life(&board, &boardClone, clockMutex);
+        clone_update_time(&board, &boardClone, clockMutex);
+        clone_update_score(&board, &boardClone, clockMutex);
+
+        update_graphics(&boardClone, NULL);
+        SLEEP_MILLIS(100);
+    } while (true);
+
+    destroy_package(clockPackage);
+
+    return 2;
 }

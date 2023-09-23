@@ -178,8 +178,7 @@ typedef enum
     ENEMY_FROG,
     ENEMY_BIRD,
     ENEMY_SNAKE,
-    PROJECTILE,
-    CLOCK
+    PROJECTILE
 } EntityTypes;
 
 typedef struct
