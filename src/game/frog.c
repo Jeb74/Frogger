@@ -27,7 +27,7 @@ bool get_keyboard_action(Action *action)
             *action = RQPAUSE;
             break;
         case 'q':
-            *action = QUIT;
+            *action = RQQUIT;
             break;
         default:
             return false;

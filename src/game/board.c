@@ -97,7 +97,6 @@ void add_to_queue(EntityQueue **eq, EntityQueue **eqm)
 
     _eq->next = _eqm;
     // _eqm->id = _eq->id + 1;
-    _eqm->id += 1;
     _eqm->e->id = _eqm->id;
 }
 
@@ -105,7 +104,10 @@ Entity *walk_through(EntityQueue *eq, unsigned int indx)
 {
     EntityQueue *_eq = eq;
 
-    while(_eq->next != NULL && _eq->id != indx) _eq = _eq->next;
+    while(_eq->id != indx) {
+        if (_eq->next != NULL) break;
+        _eq = _eq->next;
+    }
 
     return _eq->e;
 }
@@ -182,18 +184,17 @@ void *manage_entity_movement(void *args) {
         {
             block(false);
             hopper(false);
-
             struct ActionData adata = {
-                .action = *data->default_action,
-                .id = data->sub_packet.id,
+                .action = *(data->default_action),
+                .id = data->sub_packet.id
             };
 
             EXEC_WHILE_LOCKED(data->sub_packet.carriage.t.entity_mutex,
                               {
                                 int *count = data->sub_packet.carriage.t.counter;
-                                (*count)++;
 
                                 data->sub_packet.carriage.t.wbuffer[*count] = adata;
+                                (*count)++;
                               })
         }
     }
