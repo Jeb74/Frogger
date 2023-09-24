@@ -88,6 +88,7 @@ LOWCOST_INFO thread_mode_exec(Screen screen)
     INIT_COLORS;
     INIT_BOARD(board, screen);
     INIT_BOARD(boardClone, screen);
+    WINDOW **ws = create_windows(screen);
 
     ExecutionMode exm = get_exm();
 
@@ -119,7 +120,7 @@ LOWCOST_INFO thread_mode_exec(Screen screen)
         clone_update_time(&board, &boardClone, clockMutex);
         clone_update_score(&board, &boardClone, clockMutex);
 
-        update_graphics(&boardClone, NULL);
+        update_graphics(&boardClone, NULL, ws);
         SLEEP_MILLIS(100);
     } while (true);
 

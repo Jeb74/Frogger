@@ -3,6 +3,10 @@
 
 #include "structures.h"
 
+#define KEY_ESC 27
+
+#define KEY_ESC 27
+
 /* Color codes start */
 
 #define _COLOR_MENU_GREEN 1
@@ -20,6 +24,7 @@
 #define _COLOR_HP_EMPTY 9
 #define _COLOR_SCORE 10
 #define _COLOR_FROG 11
+#define _COLOR_MENU 12
 
 /* Color codes end */
 
@@ -45,9 +50,15 @@
         init_pair(_COLOR_SCORE, COLOR_YELLOW, COLOR_BLACK);      \
                                                                  \
         init_pair(_COLOR_FROG, COLOR_GREEN, COLOR_BLACK);        \
+        init_pair(_COLOR_MENU, COLOR_YELLOW, COLOR_BLACK);       \
     }
 
 #define INFO_BARS 3
+#define WINDOWS 4
+#define TBAR 0
+#define SBAR 1
+#define LBAR 2
+#define GBOARD 3
 
 #define _FROG_ART_LENGTH 20
 const static char *_FROG_ART[_FROG_ART_LENGTH] =
@@ -109,8 +120,9 @@ typedef enum
 
 void init_graphics(Screen *scrn);
 void center_string(char str[], int max);
-
+WINDOW **create_windows(Screen screen);
+void show_pause_menu(WINDOW *w);
 LOWCOST_INFO initial_menu(int max, int may);
-void update_graphics(Board *board, EntityQueue *eq);
+void update_graphics(Board *board, EntityQueue *eq, WINDOW *ws[4]);
 
 #endif

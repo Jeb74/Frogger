@@ -109,7 +109,8 @@ typedef enum
     DOWN,
     SHOOT,
     NONE,
-    RQPAUSE
+    RQPAUSE,
+    RQQUIT
 } Action;
 /* Game data structure end */
 

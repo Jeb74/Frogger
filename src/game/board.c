@@ -124,6 +124,7 @@ EntityQueue *create_queue(Board board)
         if (eq == NULL) eq = eqm;
         else add_to_queue(&eq, &eqm);
     }
+    return eq;
 }
 
 void *manage_entity_movement(void *args)

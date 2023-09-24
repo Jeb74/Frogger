@@ -39,6 +39,7 @@ void *manage_clock(void *args)
             else if (signal == PAUSE_SIGNAL)
             {
                 readfrm(&signal, data->carriage.p.se, sizeof(LOWCOST_INFO));
+                *data->time_left += 1;
             }
             else
             {

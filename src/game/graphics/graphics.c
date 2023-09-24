@@ -9,6 +9,7 @@ void init_graphics(Screen *scrn)
     setlocale(LC_ALL, "");
     initscr();
     noecho();
+    //raw();
     getmaxyx(stdscr, scrn->y, scrn->x);
 
     curs_set(false);
@@ -167,15 +168,27 @@ void center_string(char str[], int max)
     addstr(str);
 }
 
+/**
+ * Stampa una stringa al centro del terminale.
+ * @param str La stringa da stampare.
+ * @param max La larghezza della finestra
+ */
+void wcenter_string(char str[], int max, WINDOW *w, int y)
+{
+    int sl = strlen(str);
+    int total_size = (int)((max - sl) / 2);
+    mvwaddstr(w, y, total_size, str);
+}
+
 /*
   GAME LOGICS
 */
 
-void display_board(Board *board)
+void display_board(WINDOW *w, Board *board)
 {
     int starting_y = board->top_y;
     int terminating_y = board->low_y;
-    int width = board->screen_x;
+    int width = w->_maxx;
 
     for (int i = 0, k = 0; i < _Y_SIDEWALK && starting_y + k < terminating_y; i++)
     {
@@ -192,74 +205,62 @@ void display_board(Board *board)
         else if (i < _Y_SIDEWALK)
             x = _COLOR_SIDEWALK;
 
-        attron(COLOR_PAIR(x));
+        wattron(w, COLOR_PAIR(x));
         for (int j = 0, s = starting_y + k; j < width; j++)
         {
-            mvaddch(s, j, ' ');
-            mvaddch(s + 1, j, ' ');
+            mvwaddch(w, s, j, ' ');
+            mvwaddch(w, s + 1, j, ' ');
         }
-        attroff(COLOR_PAIR(x));
+        wattroff(w, COLOR_PAIR(x));
         k += 2;
     }
 
     Position *pos = &(board->fp);
-
-    // TODO REFACTOR
-    if (pos->x < 0)
-        pos->x = 0;
-    else if ((pos->x + 1) > width - 1)
-        pos->x = width - 2;
-    
-    if (pos->y < board->top_y + 2)
-        pos->y = board->top_y + 2;
-    else if (pos->y >= board->low_y)
-        pos->y = board->low_y - 1;
-
-    attron(COLOR_PAIR(_COLOR_FROG));
-    mvaddch(pos->y, pos->x, 'o'), mvaddch(pos->y, pos->x + 1, 'o');
-    mvaddch(pos->y + 1, pos->x, '('), mvaddch(pos->y + 1, pos->x + 1, ')');
-    attroff(COLOR_PAIR(_COLOR_FROG));
+    //printf("%i - %i\n", terminating_y, pos->y);
+    if (pos->x < 0) pos->x = 0;
+    else if ((pos->x + 1) > width-1) pos->x = width - 2;
+    if (pos->y < board->top_y + 2) pos->y = board->top_y + 2;
+    else if (pos->y >= board->low_y) pos->y = board->low_y - 1;
+    wattron(w, COLOR_PAIR(_COLOR_FROG));
+    mvwaddch(w, pos->y, pos->x, 'o'),mvwaddch(w, pos->y, pos->x + 1, 'o');
+    mvwaddch(w, pos->y + 1, pos->x, '('),mvwaddch(w, pos->y + 1, pos->x + 1, ')');
+    wattroff(w,COLOR_PAIR(_COLOR_FROG));
+    wrefresh(w);
 }
 
-void update_bar(int y, int start, int end, int pc, char title[])
-{
-    end = end - start;
-    mvaddstr(y - 1, start, title);
+void update_bar(WINDOW *w, char *title, int pc) {
+    mvwaddstr(w, 0, 1, title);
+    int y = (int)w->_maxy / 2 + 1; 
+    int width = w->_maxx;
     int pair = pc > 75 ? _COLOR_HP_FULL : pc > 25 ? _COLOR_HP_PARTIAL
-                                                  : _COLOR_HP_EMPTY;
+                                                : _COLOR_HP_EMPTY;
 
-    for (int i = 0, once = true; i < end; i++)
-    {
-        if (i > (float)end / 100 * pc && once)
-        {
+    for (int i = 1, once = true; i < width; i++) {
+        if (once && i > (int)((double)width / 100 * pc)) {
             pair = _COLOR_RESET;
             once = false;
         }
-        attron(COLOR_PAIR(pair));
-        mvaddch(y, start + i, ' ');
-        mvaddch(y + 1, start + i, ' ');
-        attroff(COLOR_PAIR(pair));
+        wattron(w, COLOR_PAIR(pair));
+        mvwaddch(w, y, i, ' ');
+        mvwaddch(w, y + 1, i, ' ');
+        wattroff(w, COLOR_PAIR(pair));
     }
+    wrefresh(w);
 }
 
-void update_score_bar_empty(int y, int *start, int leftovers)
-{
-    attron(COLOR_PAIR(_COLOR_RESET));
-
-    for (int i = 0; i < leftovers; i++)
-    {
-        for (int j = 0; j < SCORE_HEIGHT; j++)
-        {
-            mvaddch(y + j, start + i, ' ');
+void update_score_bar_empty(WINDOW* w, int y, int *start, int leftovers) {
+    wattron(w, COLOR_PAIR(_COLOR_RESET));
+    for (int i = 0;  i < leftovers; i++) {
+        for (int j = 0; j < SCORE_HEIGHT; j++) {
+            mvwaddch(w, y+j, start+i, ' ');
         }
     }
 
     *start += leftovers;
-    attroff(COLOR_PAIR(_COLOR_RESET));
+    wattroff(w, COLOR_PAIR(_COLOR_RESET));
 }
 
-void update_score_bar(int y, int start, int end, int value, char title[])
-{
+void update_score_bar(WINDOW *w, char *title, int value) {
     char *numb = num_to_string(value, 3);
 
     char **fdigit = format_number(numb[0] - '0', " ", "\xE2\x96\xAE");
@@ -267,69 +268,93 @@ void update_score_bar(int y, int start, int end, int value, char title[])
     char **tdigit = format_number(numb[2] - '0', " ", "\xE2\x96\xAE");
 
     free(numb);
-
-    mvaddstr(y - 1, start, title);
-
-    int occ_len = SCORE_WIDTH * SCORE_WIDTH + 2;
-    int leftovers = (int)(((end - start) - occ_len) / 2);
-    update_score_bar_empty(y, &start, leftovers);
-
-    char *temp;
-    attron(COLOR_PAIR(_COLOR_SCORE));
-    for (int i = 0; i < SCORE_HEIGHT; i++)
-    {
-        temp = build_string("%s %s %s", fdigit[i], sdigit[i], tdigit[i]);
-        mvaddstr(y + i, start, temp);
-        free(temp);
+    int occ_len = SCORE_WIDTH*SCORE_WIDTH + 2;
+    mvwaddstr(w, 0, 1, title);
+    int leftovers = (int)((w->_maxx - occ_len) / 2);
+    int start = 1;
+    update_score_bar_empty(w, 1, &start, leftovers);
+    wattron(w, COLOR_PAIR(_COLOR_SCORE));
+    char *fmtd;
+    for (int i = 0; i < SCORE_HEIGHT; i++) {
+        fmtd = build_string("%s %s %s", fdigit[i], sdigit[i], tdigit[i]);
+        mvwaddstr(w, i+1, start, fmtd);
+        free(fmtd);
     }
-    attroff(COLOR_PAIR(_COLOR_SCORE));
-
-    start += occ_len;
-    update_score_bar_empty(y, &start, leftovers);
-
+    wattroff(w, COLOR_PAIR(_COLOR_SCORE));
+    start+=occ_len;
+    update_score_bar_empty(w, 1, &start, leftovers);
     FREE_ALL(fdigit, SCORE_HEIGHT);
     FREE_ALL(sdigit, SCORE_HEIGHT);
     FREE_ALL(tdigit, SCORE_HEIGHT);
+    wrefresh(w);
 }
 
-void update_bars(Board board, Bar lf, Bar tm, Bar sc)
-{
-    int location_pos = board.top_y / 2 - 1;
-    int lcs_1 = 0;
-    int lcs_2 = lcs_1 + calwidth(board.screen_x, 3, 0);
-    int lcs_3 = lcs_2 + calwidth(board.screen_x, 3, 1);
-    int lce_3 = lcs_3 + calwidth(board.screen_x, 3, 2);
+void update_bars(Board *board, WINDOW *time, WINDOW *score, WINDOW *life) {
+    Bar sc = {.value=board->points};
+    Bar lf = create_life_bar(board);
+    Bar tm = create_time_bar(board);
+    char *str, *format;
 
-    char *str;
-    char *format = format_lives_numeric(&board);
-
-    str = build_string("Remaining Health: %s", format);
-    update_bar(location_pos, lcs_3 + 1, lce_3 - 1, lf.value, str);
-    free(format);
-    free(str);
-
-    format = format_clock_numeric(&board);
+    format = format_clock_numeric(board);
     str = build_string("Time Left: %s", format);
-    update_bar(location_pos, lcs_1 + 1, lcs_2 - 1, tm.value, str);
+    update_bar(time, str, tm.value);
     free(format);
     free(str);
 
-    location_pos = location_pos >= 2 ? location_pos - 2 : location_pos;
-    update_score_bar(location_pos, lcs_2 + 1, lcs_3 - 1, sc.value, "Score:");
+    format = format_lives_numeric(board);
+    str = build_string("Remaining Health: %s", format);
+    update_bar(life, str, lf.value);
+    free(format);
+    free(str);
+
+    update_score_bar(score, "Score", sc.value);
 }
 
-void update_graphics(Board *board, EntityQueue *eq)
-{
-    static Bar score;
-    static Bar life;
-    static Bar timer;
+WINDOW **create_windows(Screen screen) {
+    int max = screen.x;
+    int may = screen.y;
+    int screen_mid = ((int)screen.y / 2);
+    int top_y = screen_mid - (screen.y % 2 == 0) ? 8 : 9;
+    int low_y = screen_mid + ((screen.y % 2 == 0) ? 16 : 15);
+    WINDOW **ws = CALLOC(WINDOW*, WINDOWS);
+    int tend = calwidth(max, INFO_BARS, TBAR);
+    int send = calwidth(max, INFO_BARS, SBAR);
+    int lend = calwidth(max, INFO_BARS, LBAR);
+    ws[TBAR] = newwin(top_y-1, tend, 0, 0);
+    ws[SBAR] = newwin(top_y-1, send, 0, tend);
+    ws[LBAR] = newwin(top_y-1, lend, 0, tend + send);
+    ws[GBOARD] = newwin(low_y - top_y + 1, max, top_y, 0);
+    box(ws[TBAR], 0, 0); 
+    box(ws[SBAR], 0, 0);
+    box(ws[LBAR], 0, 0);
+    return ws;
+}
 
-    calculate_score_bar(&score, board);
-    calculate_life_bar(&life, board);
-    calculate_time_bar(&timer, board);
+void show_pause_menu(WINDOW *w) {
+    int width = w->_maxx;
+    int height = w->_maxy+1;
+    wattron(w, COLOR_PAIR(_COLOR_RESET));
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            mvwaddch(w, i, j, ' ');
+            if (j+1 == width && i == height / 2 - 1) {
+                wattroff(w, COLOR_PAIR(_COLOR_RESET));
+                wattron(w, COLOR_PAIR(_COLOR_MENU) | A_BOLD);
+                wcenter_string("Resume", width, w, i);
+                wattroff(w, COLOR_PAIR(_COLOR_MENU) | A_BOLD);
+                wattron(w, COLOR_PAIR(_COLOR_RESET));
+                break;
+            }
+        }
+    }
+    wattroff(w, COLOR_PAIR(_COLOR_RESET));
+    wrefresh(w);
+    int a;
+    do {a = wgetch(w);}
+    while(a != '\r' && a != '\n' && a != KEY_ESC);
+}
 
-    update_bars(*board, life, timer, score);
-
-    display_board(board);
-    refresh();
+void update_graphics(Board *board, EntityQueue *eq, WINDOW **ws) {
+    update_bars(board, ws[TBAR], ws[SBAR], ws[LBAR]);
+    display_board(ws[GBOARD], board);
 }

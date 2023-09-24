@@ -49,8 +49,11 @@ void *manage_frog(void *args)
             case ' ':
                 action = SHOOT;
                 break;
-            case KEY_EXIT:
+            case KEY_ESC:
                 action = RQPAUSE;
+                break;
+            case 'q':
+                action = RQQUIT;
                 break;
             default:
                 continue;

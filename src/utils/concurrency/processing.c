@@ -191,23 +191,26 @@ void send_pause_menu()
  * @param r Il pipe di lettura.
  * @param fp La posizione della rana.
  */
-bool fetch_frog(pipe_t r, Position *fp, Pipes services) 
+LOWCOST_INFO fetch_frog(pipe_t r, Position *fp, Pipes services, LOWCOST_INFO *service, WINDOW *w) 
 {
     Action action = NONE;
     bool shooting = false;
 
-    if (readifready(&action, r, sizeof(Action)) && action != RQPAUSE) 
+    if (readifready(&action, r, sizeof(Action)) && action != RQPAUSE && action != RQQUIT) 
     {
         fp->x += action == RIGHT ? 1 : action == LEFT ? -1 : 0;
         fp->y += action == UP ? -2 : action == DOWN ? 2 : 0;
         shooting = action == SHOOT;
     }
     else if (action == RQPAUSE) {
-        LOWCOST_INFO sig = PAUSE_SIGNAL;
-        for (int i = 0; i < services.size; i++) writeto(&sig, services.pipes[i], sizeof(LOWCOST_INFO));
-        send_pause_menu();
-                     sig = RESUME_SIGNAL;
-        for (int i = 0; i < services.size; i++) writeto(&sig, services.pipes[i], sizeof(LOWCOST_INFO));
+        for (int i = 0; i < services.size; i++) writeto(service, services.pipes[i], sizeof(LOWCOST_INFO));
+        show_pause_menu(w);
+                     *service = RESUME_SIGNAL;
+        for (int i = 0; i < services.size; i++) writeto(service, services.pipes[i], sizeof(LOWCOST_INFO));
+    }
+    else if (action == RQQUIT) {
+        erase();
+        return KILL_SIGNAL;
     }
 
     return shooting;
@@ -277,6 +280,9 @@ LOWCOST_INFO process_mode_exec(Screen screen)
     Board board;
     INIT_COLORS;
     INIT_BOARD(board, screen);
+    WINDOW **ws = create_windows(screen);
+    bool signal = false;
+    LOWCOST_INFO service = PAUSE_SIGNAL;
 
     ExecutionMode exm = get_exm();
 
@@ -304,21 +310,25 @@ LOWCOST_INFO process_mode_exec(Screen screen)
     CLOSE_WRITE(rs);
     CLOSE_WRITE(ra);
 
-    Pipes pipes = {.size=STD_ENTITIES*2};
+    /*Pipes pipes = {.size=STD_ENTITIES*2};
     int currently_created = STD_ENTITIES;
     generate_entities(&(pipes.pipes), rs);
 
     EntityQueue *queue = create_queue(board);
-    instruct_entities(queue, &pipes, &services);
-    bool signal = false;
-    
+    instruct_entities(queue, &pipes, &services);*/
     do
     {
-        fetch_frog(ra, &(board.fp), services);
+        LOWCOST_INFO sig = fetch_frog(ra, &(board.fp), services, &service, ws[GBOARD]);
+        if (sig == KILL_SIGNAL) break;
+        else if (sig == true); //CREATE PROJECTILE PROCESS WITH PREDEFINED DIRECTION.
+        service = PAUSE_SIGNAL;
         fetch_time(rt, &(board.time_left));
-        update_graphics(&board, queue);
+        update_graphics(&board, NULL, ws);
+        if (board.time_left <= 0) break;
         readfrm(&signal, rs, sizeof(bool));
-    } while (signal);
+    } while (true);
+    service = KILL_SIGNAL;
+    for (int i = 0; i < services.size; i++) writeto(&service, services.pipes[i], sizeof(LOWCOST_INFO));
 
     return 2;
 }
