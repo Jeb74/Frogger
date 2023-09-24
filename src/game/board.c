@@ -101,13 +101,13 @@ void add_to_queue(EntityQueue **eq, EntityQueue **eqm)
     _eqm->e->id = _eqm->id;
 }
 
-Entity walk_through(EntityQueue *eq, unsigned int indx) 
+Entity *walk_through(EntityQueue *eq, unsigned int indx) 
 {
     EntityQueue *_eq = eq;
 
     while(_eq->next != NULL && _eq->id != indx) _eq = _eq->next;
 
-    return *(_eq->e);
+    return _eq->e;
 }
 
 /**
@@ -155,10 +155,6 @@ void *manage_entity_movement(void *args) {
         CLOSE_READ(data->sub_packet.carriage.p.s);
         CLOSE_WRITE(data->sub_packet.carriage.p.se);
     }
-    else if (!data->sub_packet.carriage.t.entity_action)
-    {
-        data->sub_packet.carriage.t.entity_action = MALLOC(Action, 1);
-    }
 
     while(!data->sub_packet.cancelled) 
     {
@@ -186,7 +182,19 @@ void *manage_entity_movement(void *args) {
         {
             block(false);
             hopper(false);
-            EXEC_WHILE_LOCKED(data->sub_packet.carriage.t.entity_mutex, *data->sub_packet.carriage.t.entity_action = data->default_action)
+
+            struct ActionData adata = {
+                .action = *data->default_action,
+                .id = data->sub_packet.id,
+            };
+
+            EXEC_WHILE_LOCKED(data->sub_packet.carriage.t.entity_mutex,
+                              {
+                                int *count = data->sub_packet.carriage.t.counter;
+                                (*count)++;
+
+                                data->sub_packet.carriage.t.wbuffer[*count] = adata;
+                              })
         }
     }
 

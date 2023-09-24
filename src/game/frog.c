@@ -87,7 +87,18 @@ void *manage_frog(void *args)
             }
             else
             {
-                EXEC_WHILE_LOCKED(data->carriage.t.entity_mutex, *data->carriage.t.entity_action = action)
+                struct ActionData adata = {
+                    .action = action,
+                    .id = data->id,
+                };
+
+                EXEC_WHILE_LOCKED(data->carriage.t.entity_mutex,
+                                  {
+                                      int *count = data->carriage.t.counter;
+                                      (*count)++;
+
+                                      data->carriage.t.wbuffer[*count] = adata;
+                                  })
             }
         }
         

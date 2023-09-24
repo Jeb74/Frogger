@@ -115,10 +115,11 @@ typedef enum
 } Action;
 /* Game data structure end */
 
-struct ActionData {
+struct ActionData
+{
     Action action;
     unsigned int id;
-}
+};
 
 struct t_entity_move_packet
 {

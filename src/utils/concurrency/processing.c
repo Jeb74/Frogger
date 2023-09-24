@@ -259,8 +259,8 @@ void instruct_entities(EntityQueue *queue, Pipes *pipes, Pipes *services) {
         }
         else {
             new_pipes.pipes[n] = p;
-            Entity e = walk_through(queue, n);
-            writeto(&(e.action), p, sizeof(Action));
+            Entity *e = walk_through(queue, n);
+            writeto(&(e->action), p, sizeof(Action));
             n++;
         }
     }

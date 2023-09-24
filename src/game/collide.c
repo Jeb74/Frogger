@@ -165,9 +165,6 @@ int *get_bottom_right_corner(Entity *entity)
 void check_collisions(Board *board, EntityQueue *eq)
 {
     ExecutionMode exm = get_exm();
-
-    check_borders_frog(board);
-
     EntityQueue *_eq = eq;
 
     while (_eq->next != NULL)
@@ -176,6 +173,9 @@ void check_collisions(Board *board, EntityQueue *eq)
 
         switch (type)
         {
+            case FROG:
+                check_borders_frog(board);
+                break;
             case LOG:
                 check_borders_log(board, _eq->e, exm);
                 break;

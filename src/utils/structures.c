@@ -38,7 +38,8 @@ TinyEntityMovePacket *create_tiny_entity_move_packet(va_list args, ExecutionMode
     if (exm == THREAD)
     {
         (*tiny_entity_move_pkt).carriage.t.entity_mutex = va_arg(args, pthread_mutex_t *);
-        (*tiny_entity_move_pkt).carriage.t.entity_action = va_arg(args, Action *);
+        (*tiny_entity_move_pkt).carriage.t.wbuffer = va_arg(args, struct ActionData *);
+        (*tiny_entity_move_pkt).carriage.t.counter = va_arg(args, unsigned int *);
     }
     else
     {
@@ -63,7 +64,11 @@ EntityMovePacket *create_entity_move_packet(va_list args, ExecutionMode exm)
     EntityMovePacket *entity_move_pkt = MALLOC(EntityMovePacket, 1);
 
     (*entity_move_pkt).sub_packet = *create_tiny_entity_move_packet(args, exm);
-    (*entity_move_pkt).default_action = va_arg(args, Action);
+
+    if (exm == THREAD)
+    {
+        (*entity_move_pkt).default_action = va_arg(args, Action *);
+    }
 
     return entity_move_pkt;
 }

@@ -128,6 +128,24 @@ LOWCOST_INFO thread_mode_exec(Screen screen)
     create_thread(&clockThread, manage_clock, clockPackage);
 
     /* Clock end */
+    
+    /* Other entities start */
+
+    pthread_t *entityThreads = MALLOC(pthread_t, STD_ENTITIES);
+    pthread_mutex_t *entityMutexes;
+
+    EntityQueue *queue = create_queue(board);
+    Action *wbuffer = MALLOC(Action, STD_ENTITIES);
+    int counter = 0;
+
+    Package **packages = MALLOC(Package *, STD_ENTITIES);
+
+    for (size_t i = 0; i < STD_ENTITIES; i++)
+    {
+        Entity *entity = walk_through(queue, i);
+        packages[i] = pack(exm, ENTITY_PKG, &entityMutexes, &wbuffer, &counter, &entity->action);
+        create_thread(&entityThreads[i], manage_entity_movement, packages[i]);
+    }
 
     /* Frog start */
 
@@ -135,35 +153,25 @@ LOWCOST_INFO thread_mode_exec(Screen screen)
     pthread_mutex_t frogMutex = PTHREAD_MUTEX_INITIALIZER;
     Action frogAction = NONE;
 
-    Package *frogPackage = pack(exm, FROG_PKG, &frogMutex, &frogAction);
+    Package *frogPackage = pack(exm, FROG_PKG, &frogMutex, &wbuffer, &counter);
 
     create_thread(&frogThread, manage_frog, frogPackage);
 
     /* Frog end */
-    
-    /* Other entities start */
-
-    pthread_t *entityThreads;
-    pthread_mutex_t *entityMutexes;
-
-    EntityQueue *queue = create_queue(board);
-    Action *entityActions = MALLOC(Action, STD_ENTITIES);
-
-    create_threads(&entityThreads, STD_ENTITIES, manage_entity_movement, pack(exm, ENTITY_PKG, &entityMutexes, &entityActions));
 
     do
     {
         fetch_frog_t(&board, &frogAction, &frogMutex);
         // TODO all movements
 
-        check_collisions(&board, NULL);
+        check_collisions(&board, queue);
 
         clone_update_life(&board, &boardClone, &clockMutex);
         clone_update_time(&board, &boardClone, &clockMutex);
         clone_update_score(&board, &boardClone, &clockMutex);
         clone_frog_position(&board, &boardClone, &frogMutex);
 
-        update_graphics(&boardClone, NULL);
+        update_graphics(&boardClone, queue, ws);
 
         frogAction = NONE;
 
