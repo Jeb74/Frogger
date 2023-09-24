@@ -6,18 +6,251 @@
 #define _BOARD_SPACES_TOP_Y 9
 #define _BOARD_SPACES_LOW_Y 2
 
-int upper_bound;
-int lower_bound;
+int map_upper_bound;
+int map_lower_bound;
+int map_right_bound;
+int map_left_bound;
 
-int right_bound;
-int left_bound;
+int river_upper_bound;
+int river_lower_bound;
+
+/**
+ * Prende la coordinata X in alto a destra dell'entita'.
+ * @param entity L'entita'.
+ */
+int get_top_right_corner_x(Entity *entity)
+{
+    return entity->position.x + entity->length;
+}
+
+/**
+ * Prende la coordinata Y in alto a destra dell'entita'.
+ * @param entity L'entita'.
+ */
+int get_top_right_corner_y(Entity *entity)
+{
+    return entity->position.y;
+}
+
+/**
+ * Calcola le coordinate dell'angolo in alto a destra dell'entita'.
+ * @param entity L'entita'.
+ * @return Le coordinate [x, y].
+*/
+int *get_top_right_corner(Entity *entity)
+{
+    int *corner = MALLOC(int, 2);
+
+    corner[0] = get_top_right_corner_x();
+    corner[1] = get_top_right_corner_y();
+
+    return corner;
+}
+
+/**
+ * Prende la coordinata X in alto a sinistra dell'entita'.
+ * @param entity L'entita'.
+ */
+int get_bottom_left_corner_x(Entity *entity)
+{
+    return entity->position.x;
+}
+
+/**
+ * Prende la coordinata Y in alto a sinistra dell'entita'.
+ * @param entity L'entita'.
+ */
+int get_bottom_left_corner_y(Entity *entity)
+{
+    return entity->position.y - 1;
+}
+
+/**
+ * Calcola le coordinate dell'angolo in alto a sinistra dell'entita'.
+ * @param entity L'entita'.
+ * @return Le coordinate [x, y].
+*/
+int *get_bottom_left_corner(Entity *entity)
+{
+    int *corner = MALLOC(int, 2);
+
+    corner[0] = get_bottom_left_corner_x();
+    corner[1] = get_bottom_left_corner_y();
+
+    return corner;
+}
+
+/**
+ * Prende la coordinata X in basso a destra dell'entita'.
+ * @param entity L'entita'.
+ */
+int get_bottom_right_corner_x(Entity *entity)
+{
+    return entity->position.x + entity->length;
+}
+
+/**
+ * Prende la coordinata Y in basso a destra dell'entita'.
+ * @param entity L'entita'.
+*/
+int get_bottom_right_corner_y(Entity *entity)
+{
+    return entity->position.y - 1;
+}
+
+/**
+ * Calcola le coordinate dell'angolo in basso a destra dell'entita'.
+ * @param entity L'entita'.
+ * @return Le coordinate [x, y].
+ */
+int *get_bottom_right_corner(Entity *entity)
+{
+    int *corner = MALLOC(int, 2);
+
+    corner[0] = get_bottom_right_corner_x();
+    corner[1] = get_bottom_right_corner_y();
+
+    return corner;
+}
+
+/**
+ * Prende la coordinata X in basso a sinistra della rana.
+ * @param entity L'entita'.
+ */
+int get_frog_top_left_corner_x(Board *board)
+{
+    return board->fp.x;
+}
+
+/**
+ * Prende la coordinata Y in basso a sinistra della rana.
+ * @param entity L'entita'.
+ */
+int get_frog_top_left_corner_y(Board *board)
+{
+    return board->fp.y;
+}
+
+/**
+ * Calcola le coordinate dell'angolo in basso a sinistra della rana.
+ * @param entity L'entita'.
+ * @return Le coordinate [x, y].
+ */
+int *get_frog_top_left_corner(Board *board)
+{
+    int *corner = MALLOC(int, 2);
+
+    corner[0] = get_frog_top_left_corner_x(board);
+    corner[1] = get_frog_top_left_corner_y(board);
+
+    return corner;
+}
+
+/**
+ * Prende la coordinata X in basso a destra della rana.
+ * @param entity L'entita'.
+ */
+int get_frog_bottom_right_corner_x(Board *board)
+{
+    return board->fp.x + (FROG_WIDTH / 2);
+}
+
+/**
+ * Prende la coordinata Y in basso a destra della rana.
+ * @param entity L'entita'.
+ */
+int get_frog_bottom_right_corner_y(Board *board)
+{
+    return board->fp.y + (FROG_HEIGHT / 2);
+}
+
+/**
+ * Calcola le coordinate dell'angolo in basso a destra della rana.
+ * @param entity L'entita'.
+ * @return Le coordinate [x, y].
+ */
+int *get_frog_bottom_right_corner(Board *board)
+{
+    int *corner = MALLOC(int, 2);
+
+    corner[0] = get_frog_bottom_right_corner_x(board);
+    corner[1] = get_frog_bottom_right_corner_y(board);
+
+    return corner;
+}
+
+/**
+ * Prende la coordinata X in basso a sinistra della rana.
+ * @param entity L'entita'.
+ */
+int get_frog_bottom_left_corner_x(Board *board)
+{
+    return board->fp.x - (FROG_WIDTH / 2);
+}
+
+/**
+ * Prende la coordinata Y in basso a sinistra della rana.
+ * @param entity L'entita'.
+ */
+int get_frog_bottom_left_corner_y(Board *board)
+{
+    return board->fp.y;
+}
+
+/**
+ * Calcola le coordinate dell'angolo in basso a sinistra della rana.
+ * @param entity L'entita'.
+ * @return Le coordinate [x, y].
+*/
+int *get_frog_bottom_left_corner(Board *board)
+{
+    int *corner = MALLOC(int, 2);
+
+    corner[0] = get_frog_bottom_left_corner_x(board);
+    corner[1] = get_frog_bottom_left_corner_y(board);
+
+    return corner;
+}
+
+/**
+ * Prende la coordinata X in alto a destra della rana.
+ * @param entity L'entita'.
+ */
+int get_frog_top_right_corner_x(Board *board)
+{
+    return board->fp.x + (FROG_WIDTH / 2);
+}
+
+/**
+ * Prende la coordinata Y in alto a destra della rana.
+ * @param entity L'entita'.
+ */
+int get_frog_top_right_corner_y(Board *board)
+{
+    return board->fp.y;
+}
+
+/**
+ * Calcola le coordinate dell'angolo in alto a destra della rana.
+ * @param entity L'entita'.
+ * @return Le coordinate [x, y].
+ */
+int *get_frog_top_right_corner(Board *board)
+{
+    int *corner = MALLOC(int, 2);
+
+    corner[0] = get_frog_top_right_corner_x(board);
+    corner[1] = get_frog_top_right_corner_y(board);
+
+    return corner;
+}
 
 /**
  * Controlla se la rana e' uscita dai bordi della mappa.
  * @param board La board.
  * @return Se la rana e' uscita dai bordi della mappa.
 */
-bool check_borders_frog(Board *board)
+bool check_map_borders_frog(Board *board)
 {
     Position *frogPosition = &board->fp;
     
@@ -29,25 +262,25 @@ bool check_borders_frog(Board *board)
 
     if (left_y > upper_bound)
     {
-        frogPosition->y = upper_bound;
+        frogPosition->y = map_upper_bound;
         return true;
     }
 
     if (right_y < lower_bound)
     {
-        frogPosition->y = lower_bound;
+        frogPosition->y = map_lower_bound;
         return true;
     }
 
     if (left_x < left_bound)
     {
-        frogPosition->x = left_bound;
+        frogPosition->x = map_left_bound;
         return true;
     }
 
     if (right_x > right_bound)
     {
-        frogPosition->x = right_bound;
+        frogPosition->x = map_right_bound;
         return true;
     }
 
@@ -61,49 +294,22 @@ bool check_borders_frog(Board *board)
  * @param exm La modalita' di esecuzione.
  * @return Se il tronco e' uscito dai bordi della mappa.
 */
-bool check_borders_log(Board *board, Entity *log, ExecutionMode exm)
+bool check_map_borders_log(Board *board, Entity *log, ExecutionMode exm)
 {
-    int left_x = log->position.x;
-    int left_y = log->position.y;
-    int length = log->length;
+    int top_left_x = log->position.x;
+    int bottom_right_x = get_bottom_right_corner_x(log);
 
-    int *corner = get_bottom_right_corner(log);
-    int right_x = corner[0];
-    int right_y = corner[1];
-
-    if (left_x < left_bound)
+    if (top_left_x < map_left_bound)
     {
-        log->position.x = left_bound;
-
-        if (exm == PROCESS)
-        {
-
-        }
-        else
-        {
-
-        }
-
+        log->position.x = map_left_bound;
         return true;
     }
 
-    if (right_x > right_bound)
+    if (bottom_right_x > map_right_bound)
     {
-        log->position.x = right_bound;
-
-        if (exm == PROCESS)
-        {
-
-        }
-        else
-        {
-
-        }
-
+        log->position.x = map_right_bound;
         return true;
     }
-
-    free(corner);
 
     return false;
 }
@@ -117,44 +323,121 @@ bool check_borders_log(Board *board, Entity *log, ExecutionMode exm)
 */
 bool check_borders_vehicle(Board *board, Entity *vehicle, ExecutionMode exm)
 {
-    int x = vehicle->position.x;
-    int y = vehicle->position.y;
-    int length = vehicle->length;
+    int top_left_x = vehicle->position.x;
+    int bottom_right_x = get_bottom_right_corner_x;
 
-    int *corner = get_bottom_right_corner(vehicle);
-    int corner_x = corner[0];
-    int corner_y = corner[1];
-
-    if (vehicle->action == LEFT && corner_x < left_bound)
+    if (vehicle->action == LEFT && top_left_x < map_left_bound)
     {
-        vehicle->position.x = right_bound; // todo replace?
+        vehicle->position.x = map_right_bound; // todo replace?
         return true;
     }
 
-    if (vehicle->action == RIGHT && x > right_bound)
+    if (vehicle->action == RIGHT && bottom_right_x > map_right_bound)
     {
-        vehicle->position.x = left_bound; // todo replace?
+        vehicle->position.x = map_left_bound; // todo replace?
         return true;
     }
-
-    free(corner);
 
     return false;
 }
 
 /**
- * Calcola le coordinate dell'angolo in basso a destra dell'entita'.
- * @param entity L'entita'.
- * @return Le coordinate [x, y].
- */
-int *get_bottom_right_corner(Entity *entity)
+ * Controlla se la rana e' stata uccisa da un veicolo.
+ * @param board La board.
+ * @param eq La coda delle entita'.
+*/
+bool check_frog_by_vehicle(Board *board, EntityQueue *eq)
 {
-    int *corner = MALLOC(int, 2);
+    int frog_top_left_x = board->fp.x;
+    int frog_bottom_right_x = get_frog_bottom_right_corner_x(board);
 
-    corner[0] = entity->position.x + entity->length;
-    corner[1] = entity->position.y - 1;
+    EntityQueue *_eq = eq;
 
-    return corner;
+    while (_eq->next != NULL)
+    {
+        Entity *vehicle = _eq->e;
+
+        if (vehicle->type != CAR && vehicle->type != TRUCK)
+        {
+            continue;
+        }
+
+        int vehicle_top_left_x = vehicle->position.x;
+        int vehicle_top_right_x = get_top_right_corner_x(vehicle);
+
+        if (vehicle->action == LEFT && frog_top_left_x == vehicle_top_right_x)
+        {
+            return true;
+        }
+
+        if (vehicle->action == RIGHT && vehicle_top_right_x == frog_top_left_x)
+        {
+            return true;
+        }
+
+        _eq = _eq->next;
+    }
+    
+    return false;
+}
+
+/**
+ * Controlla se la rana e' stata uccisa da un proiettile.
+ * @param board La board.
+ * @param eq La coda delle entita'.
+*/
+bool check_frog_by_projectile(Board *board, EntityQueue *eq)
+{
+    int frog_top_left_x = board->fp.x;
+    int frog_top_left_y = board->fp.y;
+
+    int frog_bottom_left_x = get_frog_bottom_left_corner_x(board);
+    int frog_bottom_left_y = get_frog_bottom_left_corner_y(board);
+
+    int frog_top_right_x = get_frog_top_right_corner_x(board);
+    int frog_top_right_y = get_frog_top_right_corner_y(board);
+
+    int frog_bottom_right_x = get_frog_bottom_right_corner_x(board);
+    int frog_bottom_right_y = get_frog_bottom_right_corner_y(board);
+
+    EntityQueue *_eq = eq;
+
+    while (_eq->next != NULL)
+    {
+        Entity *projectile = _eq->e;
+
+        if (projectile->type != PROJECTILE)
+        {
+            continue;
+        }
+
+        int projectile_x = projectile->position.x;
+        int projectile_y = projectile->position.y;
+
+        if (projectile_x == frog_top_left_x && projectile_y == frog_top_left_y)
+        {
+            return true;
+        }
+
+        if (projectile_x == frog_bottom_left_x && projectile_y == frog_bottom_left_y)
+        {
+            return true;
+        }
+
+        if (projectile_x == frog_top_right_x && projectile_y == frog_top_right_y)
+        {
+            return true;
+        }
+
+        if (projectile_x == frog_bottom_right_x && projectile_y == frog_bottom_right_y)
+        {
+            return true;
+        }
+
+        _eq = _eq->next;
+    }
+    
+    return false;
 }
 
 /**
@@ -189,4 +472,7 @@ void check_collisions(Board *board, EntityQueue *eq)
 
         _eq = _eq->next;
     }
+
+    check_frog_by_vehicle(board, eq);
+    check_frog_by_projectile(board, eq);
 }

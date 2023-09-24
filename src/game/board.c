@@ -147,7 +147,6 @@ void *manage_entity_movement(void *args) {
     EntityMovePacket *data;
     unpack(args, data, exm, ENTITY_PKG);
 
-
     LOWCOST_INFO signal;
 
     if (process_mode) {
