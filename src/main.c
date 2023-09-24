@@ -62,7 +62,20 @@ int main(int argc, char *argv[])
 {
     srand(time(NULL));
 
+    // Initialize the debugger
+    init_debugger("debug.log");
+
+    // Set the log level to INFO
+    set_log_level(DEBUG);
+
     m_testing(argc, argv);
+
+    // Log some messages
+    log_message(INFO, "Init main");
+
+    // Close the debugger
+    close_debugger();
+    
     // a_testing();
     return 0;
 }

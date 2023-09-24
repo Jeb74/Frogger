@@ -14,6 +14,7 @@
 #include <sys/select.h>
 #include <sys/time.h>
 #include <semaphore.h>
+#include <stdarg.h>
 
 #ifndef FROGGER_STRUCTURES_H
 #define FROGGER_STRUCTURES_H
@@ -224,11 +225,17 @@ typedef struct
     unsigned int points;
     LOWCOST_INFO lifes_on_start;
     LOWCOST_INFO lifes_left;
-    Position fp;
+    Position fp; // frog position
 
     unsigned int max_time;
     unsigned int time_left;
 } Board;
+
+struct movements
+{
+    unsigned int id;
+    Action action;
+};
 
 /*
  * Graphical data structures
@@ -284,5 +291,7 @@ void destroy_package(Package *pkg);
 #include "frog.h"
 #include "graphics.h"
 #include "board.h"
+#include "collide.h"
+#include "debugger.h"
 
 #endif // FROGGER_STRUCTURES_H

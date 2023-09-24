@@ -67,6 +67,7 @@ static ExecutionMode exm;
 void set_exm(ExecutionMode exm);
 ExecutionMode get_exm();
 
+void block(bool value);
 void hopper(bool value);
 
 #endif // FROGGER_DATA_H

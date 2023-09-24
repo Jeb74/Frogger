@@ -52,15 +52,29 @@
  */
 
 // Aquisisce il lock di un mutex.
-#define AQUIRE_LOCK(mutex) pthread_mutex_lock(&mutex)
+#define AQUIRE_LOCK(mutex_ptr) pthread_mutex_lock(mutex_ptr)
 // Rilascia il lock di un mutex.
-#define RELEASE_LOCK(mutex) pthread_mutex_unlock(&mutex)
+#define RELEASE_LOCK(mutex_ptr) pthread_mutex_unlock(mutex_ptr)
 
-#define EXEC_WHILE_LOCKED(mutex, func) \
-    {                                  \
-        AQUIRE_LOCK(mutex);            \
-        func;                          \
-        RELEASE_LOCK(mutex);           \
+#define EXEC_WHILE_LOCKED(mutex_ptr, func) \
+    {                                      \
+        AQUIRE_LOCK(mutex_ptr);            \
+        func;                              \
+        RELEASE_LOCK(mutex_ptr);           \
+    }
+
+#define EXEC_WHILE_LOCKED_IF_THREAD(mutex_ptr, func) \
+    {                                                \
+        if (get_exm() == THREAD)                     \
+        {                                            \
+            AQUIRE_LOCK(mutex_ptr);                  \
+            func;                                    \
+            RELEASE_LOCK(mutex_ptr);                 \
+        }                                            \
+        else                                         \
+        {                                            \
+            func;                                    \
+        }                                            \
     }
 
 // Controlla se il puntatore e' valido, altrimenti, termina il programma per mancata allocazione di memoria.

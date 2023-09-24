@@ -7,3 +7,4 @@ Makefile
 CMakeCache.txt
 frogger
 cmake_install.cmake
+debug.log

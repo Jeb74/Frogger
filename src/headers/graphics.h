@@ -61,7 +61,7 @@
 #define GBOARD 3
 
 #define _FROG_ART_LENGTH 20
-const static char *_FROG_ART[_FROG_ART_LENGTH] =
+static char *_FROG_ART[_FROG_ART_LENGTH] =
     {
         "\n",
         "____  __.---\"\"---.__  ____\n",
@@ -86,7 +86,7 @@ const static char *_FROG_ART[_FROG_ART_LENGTH] =
     };
 
 #define _FROGGER_LOGO_LENGTH 6
-const static char *_FROGGER_LOGO[_FROGGER_LOGO_LENGTH] =
+static char *_FROGGER_LOGO[_FROGGER_LOGO_LENGTH] =
     {
         "    ______                                \n",
         "   / ____/________  ____ _____ ____  _____\n",
@@ -97,14 +97,14 @@ const static char *_FROGGER_LOGO[_FROGGER_LOGO_LENGTH] =
     };
 
 #define _MENU_CHOICES_LENGTH 3
-const static char *_MENU_CHOICES[_MENU_CHOICES_LENGTH] =
+static char *_MENU_CHOICES[_MENU_CHOICES_LENGTH] =
     {
         "Start threads version\n",
         "Start processes version\n",
         "Quit\n"
     };
 
-const static char *_MENU_CHOICES_SELECTED[_MENU_CHOICES_LENGTH] =
+static char *_MENU_CHOICES_SELECTED[_MENU_CHOICES_LENGTH] =
     {
         "> Start threads version <\n",
         "> Start processes version <\n",
@@ -124,5 +124,9 @@ WINDOW **create_windows(Screen screen);
 void show_pause_menu(WINDOW *w);
 LOWCOST_INFO initial_menu(int max, int may);
 void update_graphics(Board *board, EntityQueue *eq, WINDOW *ws[4]);
+
+void print_choices(MenuChoice current_choice, int max);
+void sprint_colored(char *string, int color, int max);
+void print_logo(int color, int max);
 
 #endif

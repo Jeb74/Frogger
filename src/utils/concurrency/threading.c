@@ -63,26 +63,52 @@ int *cancel_threads(pthread_t *threads, int num_threads)
     return codes;
 }
 
-void clone_update_life(Board *board, Board *boardClone, pthread_mutex_t mutex)
+void clone_update_life(Board *board, Board *boardClone, pthread_mutex_t *mutex)
 {
     EXEC_WHILE_LOCKED(mutex, boardClone->lifes_left = board->lifes_left)
 }
 
-void clone_update_time(Board *board, Board *boardClone, pthread_mutex_t mutex)
+void clone_update_time(Board *board, Board *boardClone, pthread_mutex_t *mutex)
 {
     EXEC_WHILE_LOCKED(mutex, boardClone->time_left = board->time_left)
 }
 
-void clone_update_score(Board *board, Board *boardClone, pthread_mutex_t mutex)
+void clone_update_score(Board *board, Board *boardClone, pthread_mutex_t *mutex)
 {
     EXEC_WHILE_LOCKED(mutex, boardClone->points = board->points)
 }
 
-LOWCOST_INFO thread_mode_exec(Screen screen) 
+void clone_frog_position(Board *board, Board *boardClone, pthread_mutex_t *mutex)
+{
+    EXEC_WHILE_LOCKED(mutex, boardClone->fp = board->fp)
+}
+
+bool fetch_frog_t(Board *board, Action *receivedAction, pthread_mutex_t *mutex)
+{
+    bool shooting = false;
+    Action action;
+
+    EXEC_WHILE_LOCKED(mutex, action = *receivedAction)
+
+    if (action == RQPAUSE)
+    {
+        hopper(true);
+    }
+    else
+    {
+        board->fp.x += action == RIGHT ? 1 : action == LEFT ? -1 : 0;
+        board->fp.y += action == UP ? -2 : action == DOWN ? 2 : 0;
+        shooting = action == SHOOT;
+    }
+
+    return shooting;
+}
+
+LOWCOST_INFO thread_mode_exec(Screen screen)
 {
     erase();
     refresh();
-    
+
     Board board, boardClone;
 
     INIT_COLORS;
@@ -107,21 +133,42 @@ LOWCOST_INFO thread_mode_exec(Screen screen)
 
     pthread_t frogThread;
     pthread_mutex_t frogMutex = PTHREAD_MUTEX_INITIALIZER;
+    Action frogAction = NONE;
 
-    Package *frogPackage = pack(exm, FROG_PKG, &frogMutex, &board);
+    Package *frogPackage = pack(exm, FROG_PKG, &frogMutex, &frogAction);
 
     create_thread(&frogThread, manage_frog, frogPackage);
 
     /* Frog end */
+    
+    /* Other entities start */
+
+    pthread_t *entityThreads;
+    pthread_mutex_t *entityMutexes;
+
+    EntityQueue *queue = create_queue(board);
+    Action *entityActions = MALLOC(Action, STD_ENTITIES);
+
+    create_threads(&entityThreads, STD_ENTITIES, manage_entity_movement, pack(exm, ENTITY_PKG, &entityMutexes, &entityActions));
 
     do
     {
-        clone_update_life(&board, &boardClone, clockMutex);
-        clone_update_time(&board, &boardClone, clockMutex);
-        clone_update_score(&board, &boardClone, clockMutex);
+        fetch_frog_t(&board, &frogAction, &frogMutex);
+        // TODO all movements
 
-        update_graphics(&boardClone, NULL, ws);
-        SLEEP_MILLIS(100);
+        check_collisions(&board, NULL);
+
+        clone_update_life(&board, &boardClone, &clockMutex);
+        clone_update_time(&board, &boardClone, &clockMutex);
+        clone_update_score(&board, &boardClone, &clockMutex);
+        clone_frog_position(&board, &boardClone, &frogMutex);
+
+        update_graphics(&boardClone, NULL);
+
+        frogAction = NONE;
+
+        block(true);
+        hopper(false);
     } while (true);
 
     destroy_package(clockPackage);

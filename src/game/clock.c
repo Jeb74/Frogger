@@ -26,10 +26,11 @@ void *manage_clock(void *args)
     while (!data->cancelled)
     {
         SLEEP_SECONDS(CLOCK_HIT_EVERY);
-        *data->time_left -= *data->time_left > 0 ? CLOCK_HIT_EVERY : 0;
+        EXEC_WHILE_LOCKED_IF_THREAD(data->carriage.t.mutex, *data->time_left -= *data->time_left > 0 ? CLOCK_HIT_EVERY : 0)
 
         if (process_mode)
         {
+            signal = !data->cancelled;
             readifready(&signal, data->carriage.p.se, sizeof(LOWCOST_INFO));
 
             if (signal == KILL_SIGNAL)
@@ -47,13 +48,15 @@ void *manage_clock(void *args)
                 writeto(&signal, data->carriage.p.s, sizeof(bool));
             }
         }
-
-        if (*data->time_left <= 0)
+        else
         {
-            data->cancelled = true;
+            block(false);
+            hopper(false);
         }
+
+        EXEC_WHILE_LOCKED_IF_THREAD(data->carriage.t.mutex, data->cancelled = *data->time_left <= 0)
     }
-    
+
     if (process_mode)
     {
         CLOSE_WRITE(data->carriage.p.s);

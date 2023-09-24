@@ -12,6 +12,9 @@ add_executable(frogger
                 src/headers/shortcuts.h
                 src/utils/shortcuts.c
 
+                src/headers/debugger.h
+                src/utils/debugger.c
+
                 src/headers/structures.h
                 src/utils/structures.c
 
@@ -29,6 +32,9 @@ add_executable(frogger
 
                 src/headers/frog.h
                 src/game/frog.c
+
+                src/headers/collide.h
+                src/game/collide.c
 
                 src/headers/graphics.h
                 src/game/graphics/graphics.c

@@ -18,25 +18,54 @@ ExecutionMode get_exm()
     return exm;
 }
 
-void hopper(bool value)
+void block(bool value)
 {
-    static sem_t hopper_sem;
     static bool once = false;
+    static sem_t semaphore;
+    static int sem_val;
 
     if (!once)
     {
         once = true;
-        sem_init(&hopper_sem, 0, 1);
+        sem_init(&semaphore, 0, 1);
     }
 
-    sem_wait(&hopper_sem);
-    
-    if (value)
+    sem_getvalue(&semaphore, &sem_val);
+
+    if (!sem_val && !value)
     {
-        getchar(); // main
-    } 
-    
-    sem_post(&hopper_sem);
+        sem_post(&semaphore);
+    }
+    else if (value)
+    {
+        sem_wait(&semaphore);
+    }
+}
+
+void hopper(bool value)
+{
+    static bool once = false;
+    static sem_t semaphore;
+    static int sem_val;
+
+    if (!once)
+    {
+        once = true;
+        sem_init(&semaphore, 0, 1);
+    }
+
+    sem_getvalue(&semaphore, &sem_val);
+
+    if (!sem_val && !value)
+    {
+        sem_wait(&semaphore);
+    }
+    else if (value)
+    {
+        sem_wait(&semaphore);
+        // send pause
+        sem_post(&semaphore);
+    }
 }
 
 /**
@@ -93,23 +122,23 @@ void _worker(void *arg)
 */
 void _enqueue_job(struct worker_args *worker_args, void *raw_packet)
 {
-    struct job *new_job = MALLOC(struct job, 1);
+    // struct job *new_job = MALLOC(struct job, 1);
 
-    new_job->id = gen_num(0, INT32_MAX);
-    new_job->raw_packet = raw_packet;
+    // new_job->id = gen_num(0, INT32_MAX);
+    // new_job->raw_packet = raw_packet;
 
-    struct job **job_queue = worker_args->job_queue;
-    pthread_mutex_t *job_queue_mutex = worker_args->job_queue_mutex;
-    sem_t *job_queue_count = worker_args->job_queue_count;
+    // struct job **job_queue = worker_args->job_queue;
+    // pthread_mutex_t *job_queue_mutex = worker_args->job_queue_mutex;
+    // sem_t *job_queue_count = worker_args->job_queue_count;
 
-    printf("Enqueuing job with ID: %zu\n", new_job->id);
+    // printf("Enqueuing job with ID: %zu\n", new_job->id);
 
-    AQUIRE_LOCK(*job_queue_mutex);
+    // AQUIRE_LOCK(*job_queue_mutex);
 
-    new_job->next = *job_queue;
-    *job_queue = new_job;
+    // new_job->next = *job_queue;
+    // *job_queue = new_job;
 
-    sem_post(job_queue_count);
+    // sem_post(job_queue_count);
 
-    RELEASE_LOCK(*job_queue_mutex);
+    // RELEASE_LOCK(*job_queue_mutex);
 }

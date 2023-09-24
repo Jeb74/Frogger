@@ -1,5 +1,41 @@
 #include "../headers/frog.h"
 
+bool get_keyboard_action(Action *action)
+{
+    switch (getch())
+    {
+        case KEY_LEFT:
+        case 'a':
+            *action = LEFT;
+            break;
+        case KEY_RIGHT:
+        case 'd':
+            *action = RIGHT;
+            break;
+        case KEY_UP:
+        case 'w':
+            *action = UP;
+            break;
+        case KEY_DOWN:
+        case 's':
+            *action = DOWN;
+            break;
+        case ' ':
+            *action = SHOOT;
+            break;
+        case KEY_ESC:
+            *action = RQPAUSE;
+            break;
+        case 'q':
+            *action = QUIT;
+            break;
+        default:
+            return false;
+    }
+
+    return true;
+}
+
 /**
  * Gestisce i movimenti della rana.
  * @param arg   Gli argomenti del thread.
@@ -20,6 +56,7 @@ void *manage_frog(void *args)
     long udelay, delay;
 
     LOWCOST_INFO signal;
+    bool ready = true;
 
     if (process_mode)
     {
@@ -28,50 +65,24 @@ void *manage_frog(void *args)
 
     while (!data->cancelled)
     {
-        switch (wgetch(stdscr))
+        if (!get_keyboard_action(&action))
         {
-            case KEY_LEFT:
-            case 'a':
-                action = LEFT;
-                break;
-            case KEY_RIGHT:
-            case 'd':
-                action = RIGHT;
-                break;
-            case KEY_UP:
-            case 'w':
-                action = UP;
-                break;
-            case KEY_DOWN:
-            case 's':
-                action = DOWN;
-                break;
-            case ' ':
-                action = SHOOT;
-                break;
-            case KEY_ESC:
-                action = RQPAUSE;
-                break;
-            case 'q':
-                action = RQQUIT;
-                break;
-            default:
-                continue;
+            continue;
         }
-
-        signal = !data->cancelled;
 
         gettimeofday(&ct, NULL);
 
         delay = ct.tv_sec - st.tv_sec;
         udelay = ct.tv_usec - st.tv_usec;
 
+        signal = !data->cancelled;
+
         if (udelay >= 100000 || delay >= 1)
         {
             if (process_mode)
             {
                 writeto(&action, data->carriage.p.c, sizeof(Action));
-                writeto(&signal, data->carriage.p.s, sizeof(bool));
+                writeto(&ready, data->carriage.p.s, sizeof(bool));
                 st = ct;
             }
             else
@@ -95,6 +106,7 @@ void *manage_frog(void *args)
         }
         else
         {
+            block(false);
             hopper(false);
         }
     }
