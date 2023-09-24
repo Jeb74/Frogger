@@ -361,3 +361,14 @@ char *num_to_string(int num, int size)
 
     return numb;
 }
+
+
+bool startswith(char *str, char *prefix) {
+    int ls = strlen(str), lp = strlen(prefix);
+    if (ls < lp) return false;
+    for (int i = 0; i < lp; i++) {
+        if (str[i] != prefix[i]) return false;
+    }
+    return true;
+}
+

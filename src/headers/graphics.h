@@ -27,6 +27,40 @@
 #define _COLOR_MENU 12
 #define _COLOR_WON _COLOR_FROG
 #define _COLOR_LOST 13
+#define _COLOR_PROJECTILE _COLOR_ROAD
+#define _COLOR_ENEMY_SNAKE _COLOR_LOST
+#define _COLOR_ENEMY_BIRD _COLOR_LOST
+#define _COLOR_ENEMY_FROG _COLOR_LOST
+#define _COLOR_CAR _COLOR_LOST
+#define _COLOR_TRUCK _COLOR_MENU
+#define _COLOR_LOG _COLOR_SIDEWALK
+
+static char _I_PROJECTILE[2][8] = {
+    "*       ",
+    "        "
+}
+static char _I_SNAKE[2][8] = {
+    " /\\ /\\ /",
+    "v \\/ \\/ "
+}
+static char _I_BIRD[2][8] = {
+    "()      ",
+    "ov      "
+}
+static char _I_ENEMY_FROG[2][8] = {
+    "()      ",
+    "oo       "
+}
+static char _I_LOG[2][8] = {
+    "        ",
+    "        "
+}
+static char _I_TRUCK[2][8] = {
+    "[######]",
+    "[######]"
+}
+#define _I_CAR _I_TRUCK
+
 
 /* Color codes end */
 
@@ -54,6 +88,7 @@
         init_pair(_COLOR_FROG, COLOR_GREEN, COLOR_BLACK);        \
         init_pair(_COLOR_MENU, COLOR_YELLOW, COLOR_BLACK);       \
         init_pair(_COLOR_LOST, COLOR_RED, COLOR_BLACK);          \
+        
     }
 
 #define INFO_BARS 3

@@ -4,19 +4,15 @@ bool get_keyboard_action(Action *action)
 {
     switch (getch())
     {
-        case KEY_LEFT:
         case 'a':
             *action = LEFT;
             break;
-        case KEY_RIGHT:
         case 'd':
             *action = RIGHT;
             break;
-        case KEY_UP:
         case 'w':
             *action = UP;
             break;
-        case KEY_DOWN:
         case 's':
             *action = DOWN;
             break;
@@ -55,7 +51,7 @@ void *manage_frog(void *args)
 
     long udelay, delay;
 
-    LOWCOST_INFO signal;
+    LOWCOST_INFO signal = 0;
     bool ready = true;
 
     if (process_mode)
@@ -63,7 +59,7 @@ void *manage_frog(void *args)
         CLOSE_READ(data->carriage.p.c);
     }
 
-    while (!data->cancelled)
+    while (true)
     {
         if (!get_keyboard_action(&action))
         {
@@ -75,7 +71,6 @@ void *manage_frog(void *args)
         delay = ct.tv_sec - st.tv_sec;
         udelay = ct.tv_usec - st.tv_usec;
 
-        signal = !data->cancelled;
 
         if (udelay >= 100000 || delay >= 1)
         {
@@ -99,25 +94,24 @@ void *manage_frog(void *args)
 
                                       data->carriage.t.wbuffer[*count] = adata;
                                   })
+                block(false);
             }
         }
         
         if (process_mode)
         {
-            readifready(&signal, data->carriage.p.se, sizeof(LOWCOST_INFO));
-
-            if (signal == KILL_SIGNAL)
+            signal = action;
+            if (signal == RQQUIT)
             {
-                data->cancelled = true;
+                break;
             }
-            else if (signal == PAUSE_SIGNAL)
+            else if (signal == RQPAUSE)
             {
                 readfrm(&signal, data->carriage.p.se, sizeof(LOWCOST_INFO));
             }
         }
         else
         {
-            block(false);
             hopper(false);
         }
     }
@@ -128,6 +122,7 @@ void *manage_frog(void *args)
         CLOSE_READ(data->carriage.p.s);
         CLOSE_READ(data->carriage.p.se);
     }
+
 
     return;
 }

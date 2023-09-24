@@ -65,6 +65,7 @@ void *manage_clock(void *args)
         free(data->time_left);
     }
 
+
     return;
 }
 
@@ -78,7 +79,7 @@ char *format_clock_numeric(Board *board)
     int time_left = board->time_left;
 
     char *minutes = num_to_string((int)(time_left / 60), 2);
-    char *seconds = num_to_string((int)(time_left % 60), 2);
+    char *seconds = num_to_string((time_left % 60), 2);
 
     char *clock_fmt = build_string("%s:%s", minutes, seconds);
     free(minutes);

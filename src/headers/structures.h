@@ -12,9 +12,11 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/select.h>
+#include <signal.h>
 #include <sys/time.h>
 #include <semaphore.h>
 #include <stdarg.h>
+
 
 #ifndef FROGGER_STRUCTURES_H
 #define FROGGER_STRUCTURES_H
@@ -221,6 +223,12 @@ struct _equeue
 };
 
 typedef struct _equeue EntityQueue;
+
+
+typedef struct {
+    unsigned int id;
+    Action proj_action;
+} ShootingRequest;
 
 typedef struct
 {

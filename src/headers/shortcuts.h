@@ -144,5 +144,6 @@ void calculate_time_bar(Bar *bar, Board *board);
 char **format_number(int number, char empty[], char fill[]);
 char *num_to_string(int num, int size);
 char *build_string(const char *__restrict_arr format, ...);
+bool startswith(char *str, char *prefix);
 
 #endif // FROGGER_SHORTCUTS_H

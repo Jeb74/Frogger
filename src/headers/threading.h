@@ -10,6 +10,6 @@ void join_thread(pthread_t *thread);
 
 int cancel_thread(pthread_t *thread);
 int *cancel_threads(pthread_t *threads, int num_threads);
-LOWCOST_INFO thread_mode_exec(Screen screen);
+void thread_mode_exec(Screen screen, WINDOW **ws);
 
 #endif // FROGGER_THREADING_H

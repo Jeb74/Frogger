@@ -232,28 +232,28 @@ void generate_entity(unsigned int indx, pipe_t *c, pipe_t *se, pipe_t s, Process
     free(name);
 }
 
-void generate_entities(pipe_t **p, pipe_t s) {
+Process *generate_entities(pipe_t **p, pipe_t s) {
     *p = CALLOC(pipe_t, STD_ENTITIES*2);
-    Process pr;
+    Process *pr = CALLOC(Process, STD_ENTITIES);
     for (int i = 0, j = 0; i < STD_ENTITIES; ++i, j = i * 2) {
-        generate_entity(i, &((*p)[j]), &((*p)[j+1]), s, &pr);
-        if (pr.status < 0) {
-            char *err = build_string("[Process Creation] %s has not completed its lifetime.\n", pr.name);
+        generate_entity(i, &((*p)[j]), &((*p)[j+1]), s, &(pr[i]));
+        if (pr[i].status < 0) {
+            char *err = build_string("[Process Creation] %s has not completed its lifetime.\n", pr[i].name);
             perror(err);
-            free(err);
-            free(pr.name);
-            free(p);
             exit(EXIT_FAILURE);
         }
     }
+    return pr;
 }
 
 void instruct_entities(EntityQueue *queue, Pipes *pipes, Pipes *services) {
-    (*services).pipes = REALLOC(pipe_t, (*services).pipes, (*services).size + (*pipes).size/MIN_PAS);
+    int services_size = (*services).size + (*pipes).size/MIN_PAS;
     Pipes new_pipes = {.size = STD_ENTITIES, .pipes = CALLOC(pipe_t, STD_ENTITIES)};
+    services->size = services_size;
+    (*services).pipes = REALLOC(pipe_t, (*services).pipes, services_size);
     for (int i = 0, s = MIN_PAS, n = 0; i < (*pipes).size; ++i) {
         pipe_t p = (*pipes).pipes[i];
-        if (p.name[0] == "s") {
+        if (startswith(p.name, "service")) {
             (*services).pipes[s] = p;
             s++;
         }
@@ -268,19 +268,50 @@ void instruct_entities(EntityQueue *queue, Pipes *pipes, Pipes *services) {
     *pipes = new_pipes;
 }
 
+ShootingRequest *pfetch_entities(Pipes comms, EntityQueue *eq) {
+    Action action;
+    ShootingRequest *rqs;
+    int rqs_counter = 0;
+    if (comms.size > STD_ENTITIES) rqs = CALLOC(ShootingRequest, comms.size - STD_ENTITIES);
+    else rqs = NULL;
+    for (int i = 0; i < comms.size; i++) {
+        if (readifready(&action, comms.pipes[i], sizeof(Action))) {
+            Entity *e = walk_through(eq, i);
+            switch (action) {
+                case LEFT:
+                    e->position.x -= 1;
+                    break;
+                case RIGHT:
+                    e->position.x += 1;
+                    break;
+                case UP:
+                    e->position.y -= 1;
+                    break;
+                case DOWN:
+                    e->position.y += 1;
+                    break;
+                case SHOOT:
+                    rqs[rqs_counter] = (ShootingRequest) {.id=i, .proj_action=DOWN};
+                    rqs_counter++;
+                    break;
+            }
+        }
+    }
+    return rqs;
+}
+
 /**
  * Esecutore modalità processi.
  * @param screen    Lo screen.
  * @return          Il codice di uscita.
  */
-LOWCOST_INFO process_mode_exec(Screen screen) 
+void process_mode_exec(Screen screen, WINDOW **ws) 
 {
     erase();
     refresh();
     Board board;
     INIT_COLORS;
     INIT_BOARD(board, screen);
-    WINDOW **ws = create_windows(screen);
     bool signal = false;
     LOWCOST_INFO service = PAUSE_SIGNAL;
 
@@ -306,21 +337,36 @@ LOWCOST_INFO process_mode_exec(Screen screen)
 
     writeto(&(board.max_time), rt, sizeof(unsigned int));
 
+    Pipes pipes = {.size=STD_ENTITIES*2};
+    int currently_created = STD_ENTITIES;
+    Process *processes = generate_entities(&(pipes.pipes), rs);
+
+    EntityQueue *queue = create_queue(board);
+    instruct_entities(queue, &pipes, &services);
+
     CLOSE_WRITE(rt);
     CLOSE_WRITE(rs);
     CLOSE_WRITE(ra);
-
-    /*Pipes pipes = {.size=STD_ENTITIES*2};
-    int currently_created = STD_ENTITIES;
-    generate_entities(&(pipes.pipes), rs);
-
-    EntityQueue *queue = create_queue(board);
-    instruct_entities(queue, &pipes, &services);*/
-    do
-    {
+    ShootingRequest *rqs;
+    unsigned int rqsize = 0;
+    while (true) {   
+        rqs = pfetch_entities(pipes, queue);
         LOWCOST_INFO sig = fetch_frog(ra, &(board.fp), services, &service, ws[GBOARD]);
-        if (sig == KILL_SIGNAL) break;
-        else if (sig == true); //CREATE PROJECTILE PROCESS WITH PREDEFINED DIRECTION.
+        if (sig == KILL_SIGNAL) {
+            destroy_entityqueue(queue);
+            break;
+        }
+        else if (sig == true) {
+            if (rqs == NULL) {
+                rqsize = 1;
+                rqs = CALLOC(ShootingRequest, rqsize);
+            }
+            else {
+                rqsize = (pipes.size - STD_ENTITIES) + 1;
+                rqs = REALLOC(ShootingRequest, rqs, rqsize);
+            }
+            rqs[rqsize - 1] = (ShootingRequest) {.id=FROG_ID, .proj_action=UP};
+        }
         service = PAUSE_SIGNAL;
         fetch_time(rt, &(board.time_left));
         update_graphics(&board, NULL, ws);
@@ -329,12 +375,23 @@ LOWCOST_INFO process_mode_exec(Screen screen)
             break;
         }
         readfrm(&signal, rs, sizeof(bool));
-    } while (true);
+    }
     service = KILL_SIGNAL;
-    for (int i = 0; i < services.size; i++) writeto(&service, services.pipes[i], sizeof(LOWCOST_INFO));
+    free(frog.name);
+    free(time.name);
+    for (int i = 1; i < services.size; i++) {
+        writeto(&service, services.pipes[i], sizeof(LOWCOST_INFO));
+        if (i == 1) waitpid(frog.pid, NULL, 0);
+        else {
+            waitpid(processes[i-2].pid, NULL, 0);
+            free(processes[i-2].name);
+        }
+    }
+    free(processes);
+    erase();
     if (board.is_game_won) send_win_menu(ws[GBOARD]);
     else send_lose_menu(ws[GBOARD]);
-    return 2;
+    return;
 }
 
 

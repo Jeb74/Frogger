@@ -184,10 +184,84 @@ void wcenter_string(char str[], int max, WINDOW *w, int y)
   GAME LOGICS
 */
 
-void display_board(WINDOW *w, Board *board)
+print_frog(WINDOW *w, Position fp) {
+    wattron(w, COLOR_PAIR(_COLOR_FROG));
+    mvwaddch(w, fp.y, fp.x, 'o'), mvwaddch(w, fp.y, fp.x+1, 'o');
+    mvwaddch(w, fp.y+1, fp.x, '('), mvwaddch(w, fp.y+1, fp.x+1, ')');
+    wattroff(w, COLOR_PAIR(_COLOR_FROG));
+}
+
+void weprint(WINDOW *w, EntityTypes t, Position p, int vfp /*Valid for print*/) {
+    int pair;
+    char components[2][8];
+    switch (t) {
+        case PROJECTILE:
+            pair = _COLOR_PROJECTILE;
+            components[0] = _I_PROJECTILE[0];
+            components[1] = _I_PROJECTILE[1];
+            break;
+        case ENEMY_SNAKE:
+            pair = _COLOR_ENEMY_SNAKE;
+            components[0] = _I_SNAKE[0];
+            components[1] = _I_SNAKE[1];
+            break;
+        case ENEMY_BIRD:
+            pair = _COLOR_ENEMY_BIRD;
+            components[0] = _I_BIRD[0];
+            components[1] = _I_BIRD[1];
+            break;
+        case ENEMY_FROG:
+            pair = _COLOR_ENEMY_FROG;
+            components[0] = _I_ENEMY_FROG[0];
+            components[1] = _I_ENEMY_FROG[1];
+            break;
+        case LOG:
+            pair = _COLOR_LOG;
+            components[0] = _I_LOG[0];
+            components[1] = _I_LOG[1];
+            break;
+        case TRUCK:
+            pair = _COLOR_TRUCK;
+            components[0] = _I_TRUCK[0];
+            components[1] = _I_TRUCK[1];
+            break;
+        case CAR:
+            pair = _COLOR_CAR;
+            components[0] = _I_CAR[0];
+            components[1] = _I_CAR[1];
+            break;
+    }
+    wattron(w, COLOR_PAIR(pair));
+    for (int i = 0; i < vfp; i++) {
+        if (p.x + i >= 0 && p.x+i < width) {
+            mvwaddch(w, p.y, p.x+i, components[0][i]);
+            if (t != PROJECTILE) mvwaddch(w, p.y+1, p.x+i, components[1][i]);
+        }
+    }
+    wattroff(w, COLOR_PAIR(pair));
+}
+
+print_entity(WINDOW *w, Entity *e) {
+    Position p = e->position;
+    int elen = e->length;
+    int width = w->_maxx;
+    if ((p.x < 0 && p.x + elen > 0) || (p.x > 0 && p.x < width)) {
+        weprint(w, e->type, p, elen);
+    }
+}
+
+print_entities(WINDOW *w, EntityQueue *eq) {
+    EntityQueue *eqm = eq;
+    while (eqm != NULL) {
+        print_entity(w, eqm->e);
+        eqm = eqm->next;
+    }
+}
+
+void display_board(WINDOW *w, Board board, EntityQueue *eq)
 {
-    int starting_y = board->top_y;
-    int terminating_y = board->low_y;
+    int starting_y = board.top_y;
+    int terminating_y = board.low_y;
     int width = w->_maxx;
 
     for (int i = 0, k = 0; i < _Y_SIDEWALK && starting_y + k < terminating_y; i++)
@@ -214,17 +288,8 @@ void display_board(WINDOW *w, Board *board)
         wattroff(w, COLOR_PAIR(x));
         k += 2;
     }
-
-    Position *pos = &(board->fp);
-    //printf("%i - %i\n", terminating_y, pos->y);
-    if (pos->x < 0) pos->x = 0;
-    else if ((pos->x + 1) > width-1) pos->x = width - 2;
-    if (pos->y < board->top_y + 2) pos->y = board->top_y + 2;
-    else if (pos->y >= board->low_y) pos->y = board->low_y - 1;
-    wattron(w, COLOR_PAIR(_COLOR_FROG));
-    mvwaddch(w, pos->y, pos->x, 'o'),mvwaddch(w, pos->y, pos->x + 1, 'o');
-    mvwaddch(w, pos->y + 1, pos->x, '('),mvwaddch(w, pos->y + 1, pos->x + 1, ')');
-    wattroff(w,COLOR_PAIR(_COLOR_FROG));
+    print_frog(w, board);
+    print_entities(w, eq);
     wrefresh(w);
 }
 

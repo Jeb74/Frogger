@@ -38,7 +38,7 @@ if (func <= 0) perror("[Error Handler] Something went wrong: "TOSTRING(__LINE__)
 
 #define OUT_OF_TIME 100
 
-LOWCOST_INFO process_mode_exec(Screen screen);
+void process_mode_exec(Screen screen, WINDOW **ws);
 
 bool writeifready(void *buff, pipe_t _pipe, size_t size);
 bool readifready(void *buff, pipe_t _pipe, size_t size);

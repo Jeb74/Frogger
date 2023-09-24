@@ -135,7 +135,7 @@ LOWCOST_INFO fetch_entities(
         Entity *e;
         Position *p;
         EntityTypes t;
-        if (curr_id != 127) {
+        if (curr_id != FROG_ID) {
             e = walk_through(eq, ra[i].id);
             p = &e->position;
             t = e->type;
@@ -151,7 +151,7 @@ LOWCOST_INFO fetch_entities(
     RELEASE_LOCK(mutex);
 }
 
-LOWCOST_INFO thread_mode_exec(Screen screen)
+void thread_mode_exec(Screen screen, WINDOW **ws)
 {
     erase();
     refresh();
@@ -161,7 +161,6 @@ LOWCOST_INFO thread_mode_exec(Screen screen)
     INIT_COLORS;
     INIT_BOARD(board, screen);
     INIT_BOARD(boardClone, screen);
-    WINDOW **ws = create_windows(screen);
 
     ExecutionMode exm = get_exm();
 
@@ -198,7 +197,7 @@ LOWCOST_INFO thread_mode_exec(Screen screen)
 
     pthread_t frogThread;
 
-    Package *frogPackage = pack(exm, FROG_PKG, &entityMutex, &wbuffer, &counter, 127);
+    Package *frogPackage = pack(exm, FROG_PKG, &entityMutex, &wbuffer, &counter, FROG_ID);
 
     create_thread(&frogThread, manage_frog, frogPackage);
 

@@ -105,7 +105,7 @@ Entity *walk_through(EntityQueue *eq, unsigned int indx)
     EntityQueue *_eq = eq;
 
     while(_eq->id != indx) {
-        if (_eq->next != NULL) break;
+        if (_eq->next != NULL) return NULL;
         _eq = _eq->next;
     }
 
@@ -152,9 +152,6 @@ void *manage_entity_movement(void *args) {
     if (process_mode) {
         data->default_action = CALLOC(Action, 1);
         readfrm(data->default_action, data->sub_packet.carriage.p.c, sizeof(Action));
-        CLOSE_READ(data->sub_packet.carriage.p.c);
-        CLOSE_READ(data->sub_packet.carriage.p.s);
-        CLOSE_WRITE(data->sub_packet.carriage.p.se);
     }
 
     while(!data->sub_packet.cancelled) 
@@ -181,7 +178,6 @@ void *manage_entity_movement(void *args) {
         }
         else
         {
-            block(false);
             hopper(false);
             struct ActionData adata = {
                 .action = *(data->default_action),
@@ -195,6 +191,7 @@ void *manage_entity_movement(void *args) {
                                 data->sub_packet.carriage.t.wbuffer[*count] = adata;
                                 (*count)++;
                               })
+            block(false);
         }
     }
 
@@ -204,6 +201,12 @@ void *manage_entity_movement(void *args) {
         CLOSE_WRITE(data->sub_packet.carriage.p.c);
         CLOSE_READ(data->sub_packet.carriage.p.se);
     }
-
     return;
+}
+
+void destroy_entityqueue(EntityQueue *eq) {
+    if (eq == NULL) return;
+    destroy_entityqueue(eq->next);
+    free(eq->e);
+    free(eq);
 }

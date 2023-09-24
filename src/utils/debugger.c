@@ -6,7 +6,7 @@
  */
 void init_debugger(const char *log_filename)
 {
-    log_file = fopen(log_filename, "w");
+    log_file = fopen(log_filename, "a");
 
     if (!log_file)
     {

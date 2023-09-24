@@ -4,8 +4,10 @@ void m_testing(int argc, char *argv[])
 {
     Screen screen;
     ExecutionMode exm;
+    init_debugger("debug.txt");
 
     init_graphics(&screen);
+    WINDOW **ws = create_windows(screen);
     LOWCOST_INFO result = -1;
     do
     {
@@ -27,13 +29,14 @@ void m_testing(int argc, char *argv[])
         set_exm(exm);
 
         if (exm == THREAD)
-            thread_mode_exec(screen);
+            thread_mode_exec(screen, ws);
         else if (exm == PROCESS)
-            process_mode_exec(screen);
+            process_mode_exec(screen, ws);
 
     } while (result != 2);
 
     endwin();
+    close_debugger();
 }
 
 void a_testing()
@@ -62,19 +65,7 @@ int main(int argc, char *argv[])
 {
     srand(time(NULL));
 
-    // Initialize the debugger
-    init_debugger("debug.log");
-
-    // Set the log level to INFO
-    set_log_level(DEBUG);
-
     m_testing(argc, argv);
-
-    // Log some messages
-    log_message(INFO, "Init main");
-
-    // Close the debugger
-    close_debugger();
     
     // a_testing();
     return 0;
