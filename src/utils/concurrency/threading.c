@@ -161,6 +161,8 @@ void thread_mode_exec(Screen screen, WINDOW **ws)
     INIT_COLORS;
     INIT_BOARD(board, screen);
     INIT_BOARD(boardClone, screen);
+    create_hideouts(screen.x, &board);
+    create_hideouts(screen.x, &boardClone);
 
     ExecutionMode exm = get_exm();
 

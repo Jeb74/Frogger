@@ -28,4 +28,6 @@ void *manage_entity_movement(void *args);
 Entity *walk_through(EntityQueue *eq, unsigned int indx);
 void destroy_entityqueue(EntityQueue *eq);
 
+void create_hideouts(int width, Board *board);
+
 #endif // FROGGER_BOARD_H

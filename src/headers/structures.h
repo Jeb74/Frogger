@@ -244,6 +244,8 @@ typedef struct
 
     unsigned int max_time;
     unsigned int time_left;
+
+    Hideout hideouts[5];
 } Board;
 
 struct movements

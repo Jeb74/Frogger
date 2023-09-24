@@ -260,11 +260,11 @@ print_entities(WINDOW *w, EntityQueue *eq) {
 
 void display_board(WINDOW *w, Board board, EntityQueue *eq)
 {
-    int starting_y = board.top_y;
     int terminating_y = board.low_y;
     int width = w->_maxx;
+    int hgc = 0;
 
-    for (int i = 0, k = 0; i < _Y_SIDEWALK && starting_y + k < terminating_y; i++)
+    for (int i = 0, k = 0; i < _Y_SIDEWALK && k < terminating_y; i++)
     {
         int x = -1;
 
@@ -280,10 +280,20 @@ void display_board(WINDOW *w, Board board, EntityQueue *eq)
             x = _COLOR_SIDEWALK;
 
         wattron(w, COLOR_PAIR(x));
-        for (int j = 0, s = starting_y + k; j < width; j++)
+        for (int j = 0, s = k; j < width; j++)
         {
             mvwaddch(w, s, j, ' ');
-            mvwaddch(w, s + 1, j, ' ');
+            if (hgc < 5 && x == _COLOR_HIDEOUT && s+1 == 3 && j == board.hideouts[hgc].position.x && !board.hideouts[hgc].used) {
+                wattroff(w, COLOR_PAIR(x));
+                wattron(w, COLOR_PAIR(_COLOR_HIDEOUT));
+                mvwaddch(w, s + 1, j, ' ');
+                mvwaddch(w, s + 1, j+1, ' ');
+                wattroff(w, COLOR_PAIR(_COLOR_HIDEOUT));
+                wattron(w, COLOR_PAIR(x));
+                j++;
+                hgc++;
+            }
+            else mvwaddch(w, s + 1, j, ' ');
         }
         wattroff(w, COLOR_PAIR(x));
         k += 2;

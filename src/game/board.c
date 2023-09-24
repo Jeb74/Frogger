@@ -210,3 +210,15 @@ void destroy_entityqueue(EntityQueue *eq) {
     free(eq->e);
     free(eq);
 }
+
+void create_hideouts(int width, Board *board) {
+    int hw = calwidth(width, 5, 0);
+    int hw_pos_after = (hw - 2) / 2;
+    int curr_x = 0;
+    int curr_y = 3;
+    for (int i = 0; i < 5; i++) {
+        board->hideouts[i].used = false;
+        board->hideouts[i].position = (Position) {.y = curr_y, .x = curr_x + hw_pos_after};
+        curr_x += hw;
+    }
+}

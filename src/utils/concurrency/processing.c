@@ -312,6 +312,7 @@ void process_mode_exec(Screen screen, WINDOW **ws)
     Board board;
     INIT_COLORS;
     INIT_BOARD(board, screen);
+    create_hideouts(screen.x, &board);
     bool signal = false;
     LOWCOST_INFO service = PAUSE_SIGNAL;
 
