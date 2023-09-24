@@ -25,6 +25,8 @@
 #define _COLOR_SCORE 10
 #define _COLOR_FROG 11
 #define _COLOR_MENU 12
+#define _COLOR_WON _COLOR_FROG
+#define _COLOR_LOST 13
 
 /* Color codes end */
 
@@ -51,6 +53,7 @@
                                                                  \
         init_pair(_COLOR_FROG, COLOR_GREEN, COLOR_BLACK);        \
         init_pair(_COLOR_MENU, COLOR_YELLOW, COLOR_BLACK);       \
+        init_pair(_COLOR_LOST, COLOR_RED, COLOR_BLACK);          \
     }
 
 #define INFO_BARS 3
@@ -122,6 +125,8 @@ void init_graphics(Screen *scrn);
 void center_string(char str[], int max);
 WINDOW **create_windows(Screen screen);
 void show_pause_menu(WINDOW *w);
+void send_win_menu(WINDOW *w);
+void send_lose_menu(WINDOW *w);
 LOWCOST_INFO initial_menu(int max, int may);
 void update_graphics(Board *board, EntityQueue *eq, WINDOW *ws[4]);
 

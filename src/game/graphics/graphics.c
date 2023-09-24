@@ -330,7 +330,8 @@ WINDOW **create_windows(Screen screen) {
     return ws;
 }
 
-void show_pause_menu(WINDOW *w) {
+
+void send_generic_menu(WINDOW *w, unsigned int color, char str[]) {
     int width = w->_maxx;
     int height = w->_maxy+1;
     wattron(w, COLOR_PAIR(_COLOR_RESET));
@@ -339,9 +340,9 @@ void show_pause_menu(WINDOW *w) {
             mvwaddch(w, i, j, ' ');
             if (j+1 == width && i == height / 2 - 1) {
                 wattroff(w, COLOR_PAIR(_COLOR_RESET));
-                wattron(w, COLOR_PAIR(_COLOR_MENU) | A_BOLD);
-                wcenter_string("Resume", width, w, i);
-                wattroff(w, COLOR_PAIR(_COLOR_MENU) | A_BOLD);
+                wattron(w, COLOR_PAIR(color) | A_BOLD);
+                wcenter_string(str, width, w, i);
+                wattroff(w, COLOR_PAIR(color) | A_BOLD);
                 wattron(w, COLOR_PAIR(_COLOR_RESET));
                 break;
             }
@@ -352,6 +353,17 @@ void show_pause_menu(WINDOW *w) {
     int a;
     do {a = wgetch(w);}
     while(a != '\r' && a != '\n' && a != KEY_ESC);
+}
+
+void show_pause_menu(WINDOW *w) {
+    send_generic_menu(w, _COLOR_MENU, "Resume");
+}
+
+void send_win_menu(WINDOW *w) {
+    send_generic_menu(w, _COLOR_WON, "You WON!");
+}
+void send_lose_menu(WINDOW *w) {
+    send_generic_menu(w, _COLOR_LOST, "You LOST!");
 }
 
 void update_graphics(Board *board, EntityQueue *eq, WINDOW **ws) {

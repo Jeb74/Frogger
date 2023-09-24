@@ -115,10 +115,16 @@ typedef enum
 } Action;
 /* Game data structure end */
 
+struct ActionData {
+    Action action;
+    unsigned int id;
+}
+
 struct t_entity_move_packet
 {
     pthread_mutex_t *entity_mutex;
-    Action *entity_action;
+    struct ActionData *wbuffer;
+    unsigned int *counter;
 };
 
 // <!> Forse non necessario
@@ -152,7 +158,7 @@ typedef struct
 typedef struct
 {
     TinyEntityMovePacket sub_packet;
-    Action default_action;
+    Action *default_action;
 } EntityMovePacket;
 
 typedef struct

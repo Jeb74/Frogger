@@ -324,12 +324,16 @@ LOWCOST_INFO process_mode_exec(Screen screen)
         service = PAUSE_SIGNAL;
         fetch_time(rt, &(board.time_left));
         update_graphics(&board, NULL, ws);
-        if (board.time_left <= 0) break;
+        if (board.time_left <= 0) {
+            board.is_game_won = false;
+            break;
+        }
         readfrm(&signal, rs, sizeof(bool));
     } while (true);
     service = KILL_SIGNAL;
     for (int i = 0; i < services.size; i++) writeto(&service, services.pipes[i], sizeof(LOWCOST_INFO));
-
+    if (board.is_game_won) send_win_menu(ws[GBOARD]);
+    else send_lose_menu(ws[GBOARD]);
     return 2;
 }
 

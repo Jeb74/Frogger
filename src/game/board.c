@@ -116,13 +116,10 @@ Entity walk_through(EntityQueue *eq, unsigned int indx)
  * @param board La board di gioco.
  * @return      La queue di entità.
 */
-EntityQueue *create_queue(Board board) 
-{
+EntityQueue *create_queue(Board board) {
     Action action = gen_num(LEFT, RIGHT);
     EntityQueue *eq = NULL;
-    
-    for (int i = 0; i < STD_ENTITIES; i++)
-    {
+    for (int i = 0; i < STD_ENTITIES; i++) {
         action = i != 0 && i % 2 == 0 ? !action : action;
 
         EntityQueue *eqm = CALLOC(EntityQueue, 1);
@@ -141,19 +138,19 @@ EntityQueue *create_queue(Board board)
     return eq;
 }
 
-void *manage_entity_movement(void *args)
-{
+
+void *manage_entity_movement(void *args) {
     ExecutionMode exm = get_exm();
     bool process_mode = exm == PROCESS;
-
     EntityMovePacket *data;
     unpack(args, data, exm, ENTITY_PKG);
 
+
     LOWCOST_INFO signal;
 
-    if (process_mode) 
-    {
-        readfrm(&(data->default_action), data->sub_packet.carriage.p.c, sizeof(Action));
+    if (process_mode) {
+        data->default_action = CALLOC(Action, 1);
+        readfrm(data->default_action, data->sub_packet.carriage.p.c, sizeof(Action));
         CLOSE_READ(data->sub_packet.carriage.p.c);
         CLOSE_READ(data->sub_packet.carriage.p.s);
         CLOSE_WRITE(data->sub_packet.carriage.p.se);
@@ -180,9 +177,8 @@ void *manage_entity_movement(void *args)
             {
                 readfrm(&signal, data->sub_packet.carriage.p.se, sizeof(LOWCOST_INFO));
             }
-            else 
-            {
-                writeto(&(data->default_action), data->sub_packet.carriage.p.c, sizeof(Action));
+            else {
+                writeto(data->default_action, data->sub_packet.carriage.p.c, sizeof(Action));
                 writeto(&signal, data->sub_packet.carriage.p.s, sizeof(bool));
             }
         }
